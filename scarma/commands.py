@@ -20,5 +20,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+from scarma.app_info import AppInfo
+
+
 def version(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
+    """Send information about bot"""
+
+    bot_info = AppInfo()
+    message = f"{bot_info.app_name} {bot_info.app_version}\n" \
+              f"{bot_info.app_description}\n" \
+              f"Build: {bot_info.app_build}"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
