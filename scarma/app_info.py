@@ -21,18 +21,39 @@
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
 from os import path
+from configparser import ConfigParser
 
-"""
-Parse information from app.conf
-"""
+
 class AppInfo:
+    """Parse information from app.conf"""
 
     APP_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/app.conf')
 
     app_name: str
     app_description: str
+    app_version: str
+    app_build: str
+
+    app_token: str
+    app_dev_token: str
 
     def __init__(self):
-        if not path.isfile(APP_CONFIG_FILE):
-            print("Couldn't find config file path:", APP_CONFIG_FILE, file=stderr)
-            exit(2)
+        """
+        Parse config file and fill all fields.
+
+        Raise FileNotFoundError if file doesn't exist
+        """
+
+        if not path.isfile(self.APP_CONFIG_FILE):
+            raise FileNotFoundError("Couldn't find config file path: " + self.APP_CONFIG_FILE)
+
+        app_config = ConfigParser()
+        app_config.read(self.APP_CONFIG_FILE)
+
+        self.app_name = app_config['GENERAL']['bot_name']
+        self.app_description = app_config['GENERAL']['bot_desc']
+        self.app_version = app_config['GENERAL']['bot_version']
+        self.app_build = app_config['GENERAL']['bot_build']
+
+        self.app_token = app_config['TOKENS']['token']
+        self.app_dev_token = app_config['TOKENS']['dev_token']
