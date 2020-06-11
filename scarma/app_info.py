@@ -1,24 +1,24 @@
-#  ____   ____
-# / ___| / ___|__ _ _ __ _ __ ___   __ _
-# \___ \| |   / _` | '__| '_ ` _ \ / _` |
-#  ___) | |__| (_| | |  | | | | | | (_| |
-# |____/ \____\__,_|_|  |_| |_| |_|\__,_|
+#   ____  _  __
+#  / ___|| |/ /__ _ _ __ _ __ ___   __ _
+#  \___ \| ' // _` | '__| '_ ` _ \ / _` |
+#   ___) | . \ (_| | |  | | | | | | (_| |
+#  |____/|_|\_\__,_|_|  |_| |_| |_|\__,_|
 #
-# Yet another carma bot for telegram
+# Yet another karma bot for telegram
 # Copyright (C) 2020 Nikita Serba. All rights reserved
 #
-# SCarma is free software: you can redistribute it and/or modify
+# SKarma is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# SCarma is distributed in the hope that it will be useful,
+# SKarma is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with SCarma. If not, see <https://www.gnu.org/licenses/>.
+# along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
 from os import path
 
@@ -33,6 +33,6 @@ class AppInfo:
     app_description: str
 
     def __init__(self):
-        if not path.isfile(config_file_path):
-            print("Couldn't find config file path:", config_file_path, file=stderr)
+        if not path.isfile(APP_CONFIG_FILE):
+            print("Couldn't find config file path:", APP_CONFIG_FILE, file=stderr)
             exit(2)
