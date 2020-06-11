@@ -20,13 +20,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler
 import logging
+
+from scarma import commands
+from scarma.app_info import AppInfo
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 if __name__ == "__main__":
-    updater = Updater(token='<token>', use_context=True)
+    bot_info = AppInfo()
+
+    updater = Updater(token=bot_info.app_dev_token, use_context=True)
     dispatcher = updater.dispatcher
+
+    version_handler = CommandHandler('version', commands.version)
+    dispatcher.add_handler(version_handler)
 
     updater.start_polling()
