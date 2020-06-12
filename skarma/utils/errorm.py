@@ -66,7 +66,7 @@ class ErrorManager(metaclass=SingletonMeta):
         """Returns number of reported errors in DB"""
         res_ = self._dbu.run_single_query("select count(*) from errors")
 
-        if len(res_) != 1 or len(res_[0]) or type(res_[0][0] is not int):
+        if len(res_) != 1 or (len(res_[0]) != 1) or type(res_[0][0]) is not int:
             raise DatabaseError('Invalid response from DB (getting number of errors): ' + pprint.pformat(res_))
 
         return res_[0][0]
