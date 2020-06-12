@@ -58,7 +58,7 @@ class ErrorManager(metaclass=SingletonMeta):
             except Exception as e:
                 pass  # TODO: Logging
 
-    def report_exception(self, e: Type[Exception]) -> None:
+    def report_exception(self, e: Exception) -> None:
         """Report new error to DB"""
         self.report_error(repr(e), ' '.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
 
