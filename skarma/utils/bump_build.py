@@ -27,7 +27,7 @@ from sys import stderr
 from configparser import ConfigParser
 
 if __name__ == "__main__":
-    config_file_path = path.join(path.dirname(path.abspath(__file__)), '../config/app.conf')
+    config_file_path = path.join(path.dirname(path.abspath(__file__)), '../../config/app.conf')
 
     if not path.isfile(config_file_path):
         print("Couldn't find config file path:", config_file_path, file=stderr)
