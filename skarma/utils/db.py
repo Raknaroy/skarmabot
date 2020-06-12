@@ -52,6 +52,8 @@ def run_single_query(operation: str, params=()) -> List[Tuple[Any]]:
     if your query updated DB.
     Arguments will be passed to MySQLCursor.execute().
 
+    ProgrammingError will be raised on error.
+
     Consider using 'params' argument instead of others string building methods
     to avoid SQL injections. You can report SQL injections problems found in
     the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
@@ -64,11 +66,13 @@ def run_single_query(operation: str, params=()) -> List[Tuple[Any]]:
     return cursor_.fetchall()
 
 
-def run_single_update_query(operation: str, params=()) -> List[Tuple[Any]]:
+def run_single_update_query(operation: str, params=()) -> None:
     """
     Run query to db that do update DB. Use run_single_query instead
     if you are doing SELECT query .
     Arguments will be passed to MySQLCursor.execute().
+
+    ProgrammingError will be raised on error.
 
     Consider using 'params' argument instead of others string building methods
     to avoid SQL injections. You can report SQL injections problems found in
@@ -80,6 +84,4 @@ def run_single_update_query(operation: str, params=()) -> List[Tuple[Any]]:
     cursor_.execute(operation, params)
 
     botdb.commit()
-
-    return cursor_.fetchall()
 
