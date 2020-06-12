@@ -46,6 +46,8 @@ class DBUtils(metaclass=SingletonMeta):
             database=dbi.database
         )
 
+        self.run_single_update_query('SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED')
+
     def run_single_query(self, operation: str, params=()) -> List[Tuple[Any]]:
         """
         Run SELECT query to db that don't update DB. Use run_single_update_query
@@ -61,7 +63,9 @@ class DBUtils(metaclass=SingletonMeta):
         cursor_ = self._botdb.cursor()
         cursor_.execute(operation, params)
 
-        return cursor_.fetchall()
+        res_ = cursor_.fetchall()
+        cursor_.close()
+        return res_
 
     def run_single_update_query(self, operation: str, params=()) -> None:
         """
@@ -79,6 +83,7 @@ class DBUtils(metaclass=SingletonMeta):
         cursor_.execute(operation, params)
 
         self._botdb.commit()
+        cursor_.close()
 
     def is_connected(self) -> bool:
         return self._botdb.is_connected()
