@@ -19,9 +19,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
-from typing import List, Tuple
+import traceback
+import pprint
+
+from typing import List, Tuple, Type
+
+from mysql.connector.errors import DatabaseError
 
 from skarma.utils.singleton import SingletonMeta
+from skarma.utils.db import DBUtils
+from skarma.utils import email
+from skarma.email_info import EmailInfo
 
 
 class ErrorManager(metaclass=SingletonMeta):
@@ -31,22 +39,39 @@ class ErrorManager(metaclass=SingletonMeta):
     Errors are stored in 'errors' table in DB.
     """
 
+    _dbu: DBUtils = DBUtils()
+
+    report_by_email = True
+
     def get_all_errors(self) -> List[Tuple[int, str, str]]:
         """Get list of all reported errors from DB"""
-        pass
+
+        return self._dbu.run_single_query('select * from errors')
 
     def report_error(self, name: str, stacktrace: str) -> None:
         """Report new error to DB"""
-        pass
+        self._dbu.run_single_update_query('insert into skarma.errors (name, stacktrace) VALUES (%s, %s)', (name, stacktrace))
 
-    def report_exception(self, e: Exception) -> None:
+        if self.report_by_email:
+            try:
+                self._report_via_email(name, stacktrace)
+            except Exception as e:
+                pass  # TODO: Logging
+
+    def report_exception(self, e: Type[Exception]) -> None:
         """Report new error to DB"""
-        pass
+        self.report_error(repr(e), ' '.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
 
     def get_number_of_errors(self) -> int:
         """Returns number of reported errors in DB"""
-        pass
+        res_ = self._dbu.run_single_query("select count(*) from information_schema.columns where table_name = 'errors'")
 
-    def _report_via_email(self, name: str, stacktrace: str) -> None:
+        if len(res_) != 1 or len(res_[0]) or type(res_[0][0] is not int):
+            raise DatabaseError('Invalid response from DB (getting number of errors): ' + pprint.pformat(res_))
+
+        return res_[0][0]
+
+    @staticmethod
+    def _report_via_email(name: str, stacktrace: str) -> None:
         """Send error report to email. See email.conf for more information"""
-        pass
+        email.send_email(EmailInfo().user_to, 'Error in SKarma: ' + name, stacktrace)  # TODO: Replce name
