@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
-from scarma.app_info import AppInfo
+from skarma.app_info import AppInfo
 
 
 def version(update, context):

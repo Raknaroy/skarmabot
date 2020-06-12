@@ -23,8 +23,8 @@
 from telegram.ext import Updater, CommandHandler
 import logging
 
-from scarma import commands
-from scarma.app_info import AppInfo
+from skarma import commands
+from skarma.app_info import AppInfo
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
