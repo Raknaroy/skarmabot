@@ -23,7 +23,7 @@ from os import path
 from configparser import ConfigParser
 
 
-class AppInfo:
+class DBInfo:
     """Parse information from db.conf"""
 
     DB_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/db.conf')
