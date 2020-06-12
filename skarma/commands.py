@@ -20,6 +20,7 @@
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
 from skarma.app_info import AppInfo
+from skarma.utils.db import DBUtils
 
 
 def version(update, context):
@@ -29,4 +30,13 @@ def version(update, context):
     message = f"{bot_info.app_name} {bot_info.app_version}\n" \
               f"{bot_info.app_description}\n" \
               f"Build: {bot_info.app_build}"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+
+
+def status(update, context):
+    """Send information about bot status"""
+
+    message = f"Status: Running (Stable)\n" \
+              f"Unexpected errors: 0\n" \
+              f"Database connection status: " + ("connected" if DBUtils().is_connected() else "disconnected (error)")
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)

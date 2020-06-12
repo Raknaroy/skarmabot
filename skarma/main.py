@@ -36,4 +36,7 @@ if __name__ == "__main__":
     version_handler = CommandHandler('version', commands.version)
     dispatcher.add_handler(version_handler)
 
+    version_handler = CommandHandler('status', commands.status)
+    dispatcher.add_handler(version_handler)
+
     updater.start_polling()
