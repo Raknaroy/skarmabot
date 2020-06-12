@@ -81,5 +81,5 @@ def run_single_update_query(operation: str, params=()) -> List[Tuple[Any]]:
 
     botdb.commit()
 
-    return cursor.fetchall()
+    return cursor_.fetchall()
 
