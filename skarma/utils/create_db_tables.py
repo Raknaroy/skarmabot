@@ -29,15 +29,15 @@ from typing import List, Callable
 
 from mysql.connector.errors import DatabaseError
 
-from skarma.utils.db import init_db, run_single_update_query, run_single_query
+from skarma.utils.db import DBUtils
 
 
-def create_error_table():
-    tables = run_single_query("SHOW TABLES;")[0]
-    if 'errors' in tables:
+def create_error_table(dbu: DBUtils):
+    tables = dbu.run_single_query("SHOW TABLES;")
+    if tuple('errors') in tables:
         raise DatabaseError("Table 'errors' already exists")
 
-    run_single_update_query("""create table errors
+    dbu.run_single_update_query("""create table errors
                                (
                                  id int auto_increment,
                                  name text not null,
@@ -47,16 +47,16 @@ def create_error_table():
                                );""")
 
 
-def _run_functions_and_print_db_errors(functions: List[Callable]):
+def _run_functions_and_print_db_errors(functions: List[Callable], dbu: DBUtils):
     for fun in functions:
         try:
-            fun()
+            fun(dbu)
         except DatabaseError as e:
             print(e.msg)
 
 
 if __name__ == '__main__':
-    init_db()
+    dbu = DBUtils()
 
-    _run_functions_and_print_db_errors([create_error_table])
+    _run_functions_and_print_db_errors([create_error_table], dbu)
     print('Done.')

@@ -22,66 +22,64 @@
 import mysql.connector
 
 from mysql.connector import MySQLConnection
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union
 
 from skarma.db_info import DBInfo
-
-botdb: MySQLConnection
-
-
-def init_db() -> None:
-    """
-    Init global botdb variable with new MySql connection.
-    """
-    global botdb, cursor
-
-    dbi = DBInfo()
-
-    botdb = mysql.connector.connect(
-        host=dbi.host,
-        port=dbi.port,
-        user=dbi.user,
-        password=dbi.password,
-        database=dbi.database
-    )
+from skarma.utils.singleton import SingletonMeta
 
 
-def run_single_query(operation: str, params=()) -> List[Tuple[Any]]:
-    """
-    Run SELECT query to db that don't update DB. Use run_single_update_query
-    if your query updated DB.
-    Arguments will be passed to MySQLCursor.execute().
+class DBUtils(metaclass=SingletonMeta):
 
-    ProgrammingError will be raised on error.
+    _botdb: Union[MySQLConnection, None] = None
 
-    Consider using 'params' argument instead of others string building methods
-    to avoid SQL injections. You can report SQL injections problems found in
-    the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
-    """
-    global botdb
+    def __init__(self) -> None:
+        """
+        Init global botdb variable with new MySql connection.
+        """
+        dbi = DBInfo()
 
-    cursor_ = botdb.cursor()
-    cursor_.execute(operation, params)
+        self._botdb = mysql.connector.connect(
+            host=dbi.host,
+            port=dbi.port,
+            user=dbi.user,
+            password=dbi.password,
+            database=dbi.database
+        )
 
-    return cursor_.fetchall()
+    def run_single_query(self, operation: str, params=()) -> List[Tuple[Any]]:
+        """
+        Run SELECT query to db that don't update DB. Use run_single_update_query
+        if your query updated DB.
+        Arguments will be passed to MySQLCursor.execute().
 
+        ProgrammingError will be raised on error.
 
-def run_single_update_query(operation: str, params=()) -> None:
-    """
-    Run query to db that do update DB. Use run_single_query instead
-    if you are doing SELECT query .
-    Arguments will be passed to MySQLCursor.execute().
+        Consider using 'params' argument instead of others string building methods
+        to avoid SQL injections. You can report SQL injections problems found in
+        the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
+        """
+        cursor_ = self._botdb.cursor()
+        cursor_.execute(operation, params)
 
-    ProgrammingError will be raised on error.
+        return cursor_.fetchall()
 
-    Consider using 'params' argument instead of others string building methods
-    to avoid SQL injections. You can report SQL injections problems found in
-    the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
-    """
-    global botdb
+    def run_single_update_query(self, operation: str, params=()) -> None:
+        """
+        Run query to db that do update DB. Use run_single_query instead
+        if you are doing SELECT query .
+        Arguments will be passed to MySQLCursor.execute().
 
-    cursor_ = botdb.cursor()
-    cursor_.execute(operation, params)
+        ProgrammingError will be raised on error.
 
-    botdb.commit()
+        Consider using 'params' argument instead of others string building methods
+        to avoid SQL injections. You can report SQL injections problems found in
+        the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
+        """
+        cursor_ = self._botdb.cursor()
+        cursor_.execute(operation, params)
+
+        self._botdb.commit()
+
+    def is_connected(self) -> bool:
+        return self._botdb.is_connected()
 
