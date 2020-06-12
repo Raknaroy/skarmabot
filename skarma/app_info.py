@@ -4,13 +4,12 @@
 #   ___) | . \ (_| | |  | | | | | | (_| |
 #  |____/|_|\_\__,_|_|  |_| |_| |_|\__,_|
 #
-# Yet another karma bot for telegram
+# Yet another carma bot for telegram
 # Copyright (C) 2020 Nikita Serba. All rights reserved
 #
 # SKarma is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, either version 3 of the License.
 #
 # SKarma is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
