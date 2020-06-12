@@ -47,7 +47,7 @@ def create_error_table(dbu: DBUtils):
                                );""")
 
 
-def _run_functions_and_print_db_errors(functions: List[Callable], dbu: DBUtils):
+def _run_functions_and_print_db_errors(functions: List[Callable[[DBUtils], None]], dbu: DBUtils):
     for fun in functions:
         try:
             fun(dbu)
