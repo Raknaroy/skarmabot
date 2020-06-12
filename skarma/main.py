@@ -24,10 +24,13 @@ import logging
 
 from skarma import commands
 from skarma.app_info import AppInfo
+from skarma.utils.db import init_db
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 if __name__ == "__main__":
+    init_db()
+
     bot_info = AppInfo()
 
     updater = Updater(token=bot_info.app_dev_token, use_context=True)
