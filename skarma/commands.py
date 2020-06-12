@@ -21,6 +21,7 @@
 
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
+from skarma.utils.errorm import ErrorManager
 
 
 def version(update, context):
@@ -36,7 +37,8 @@ def version(update, context):
 def status(update, context):
     """Send information about bot status"""
 
-    message = f"Status: Running (Stable)\n" \
-              f"Unexpected errors: 0\n" \
+    number_of_errors = ErrorManager().get_number_of_errors()
+    message = f"Status: Running ({'Stable' if number_of_errors == 0 else 'Unstable'})\n" \
+              f"Unexpected errors: {number_of_errors}\n" \
               f"Database connection status: " + ("connected" if DBUtils().is_connected() else "disconnected (error)")
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
