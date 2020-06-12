@@ -61,7 +61,7 @@ def run_single_query(operation: str, params=()) -> List[Tuple[Any]]:
     cursor_ = botdb.cursor()
     cursor_.execute(operation, params)
 
-    return cursor.fetchall()
+    return cursor_.fetchall()
 
 
 def run_single_update_query(operation: str, params=()) -> List[Tuple[Any]]:
