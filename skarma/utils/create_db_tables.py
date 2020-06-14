@@ -55,8 +55,8 @@ def create_karma_table(dbu: DBUtils):
     dbu.run_single_update_query("""create table karma
                                    (
                                         id int auto_increment,
-                                        chat_id int not null,
-                                        user_id int not null,
+                                        chat_id text not null,
+                                        user_id text not null,
                                         karma int default 0 not null,
                                         constraint karma_pk
                                             primary key (id)
