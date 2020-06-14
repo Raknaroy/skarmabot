@@ -149,9 +149,10 @@ if __name__ == "__main__":
     dispatcher.add_handler(version_handler)
     blog.info('Added handler for /version command')
 
-    status_handler = CommandHandler('status', commands.status)
-    dispatcher.add_handler(status_handler)
-    blog.info('Added handler for /status command')
+    if DEBUG_MODE:
+        status_handler = CommandHandler('status', commands.status)
+        dispatcher.add_handler(status_handler)
+        blog.info('Added handler for /status command')
 
     report_handler = CommandHandler('bug_report', commands.bug_report)
     dispatcher.add_handler(report_handler)
