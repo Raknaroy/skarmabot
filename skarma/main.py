@@ -21,13 +21,97 @@
 
 from telegram.ext import Updater, CommandHandler
 import logging
+import logging.handlers
+import os
+
+from os import path
 
 from skarma import commands
 from skarma.app_info import AppInfo
+from skarma.utils.errorm import ErrorManager
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+LOGGING_DIR = '/var/log/skarma'
+
+
+def setup_logging_ui() -> None:
+    """
+    Setup logging into /var/log. If app don't have permission
+    to access /var/log/skarma, than it will launch chmod to get
+    it. Entering sudo password may be needed.
+    """
+
+    if not path.exists(LOGGING_DIR) or not path.isdir(LOGGING_DIR) or not os.access(LOGGING_DIR, os.W_OK):
+        print(f'Can\t access logging directory.\n'
+              f'Please, run "sudo mkdir -p {LOGGING_DIR} && sudo chown $(whoami) {LOGGING_DIR}"\n'
+              f'Logging will be turned off.')
+        return
+
+    formatter = logging.Formatter('%(asctime)s - %(process)d - %(levelname)s - %(module)s - %(message)s')
+
+    tglogger = logging.getLogger("telegram.bot")
+    tglogger.setLevel(logging.DEBUG)
+
+    tglogger.handlers = []
+
+    botlogger = logging.getLogger('botlog')
+    botlogger.setLevel(logging.DEBUG)
+
+    sh = logging.StreamHandler()
+    sh.setLevel(logging.INFO)
+    sh.setFormatter(formatter)
+
+    ifh = logging.handlers.TimedRotatingFileHandler(
+        filename=path.join(LOGGING_DIR, 'bot-info.log'),
+        when='d',
+        backupCount=3
+    )
+    ifh.setLevel(logging.INFO)
+    ifh.setFormatter(formatter)
+
+    wfh = logging.handlers.TimedRotatingFileHandler(
+        filename=path.join(LOGGING_DIR, 'bot-warn-error.log'),
+        when='d',
+        backupCount=7
+    )
+    wfh.setLevel(logging.WARN)
+    wfh.setFormatter(formatter)
+
+    tglogger.addHandler(sh)
+    tglogger.addHandler(ifh)
+    tglogger.addHandler(wfh)
+
+    shm = logging.StreamHandler()
+    shm.setLevel(logging.DEBUG)
+    shm.setFormatter(formatter)
+
+    ifhm = logging.handlers.TimedRotatingFileHandler(
+        filename=path.join(LOGGING_DIR, 'debug.log'),
+        when='d',
+        backupCount=3
+    )
+    ifhm.setLevel(logging.DEBUG)
+    ifhm.setFormatter(formatter)
+
+    wfhm = logging.handlers.TimedRotatingFileHandler(
+        filename=path.join(LOGGING_DIR, 'warn-error.log'),
+        when='d',
+        backupCount=7
+    )
+    wfhm.setLevel(logging.WARN)
+    wfhm.setFormatter(formatter)
+
+    botlogger.addHandler(shm)
+    botlogger.addHandler(ifhm)
+    botlogger.addHandler(wfhm)
+
 
 if __name__ == "__main__":
+    setup_logging_ui()
+
+    blog = logging.getLogger('botlog')
+    blog.info('Finished logging setup')
+    blog.info('Starting bot')
+
     bot_info = AppInfo()
 
     updater = Updater(token=bot_info.app_dev_token, use_context=True)
