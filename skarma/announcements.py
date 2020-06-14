@@ -19,13 +19,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+
 from typing import List
 
 from skarma.utils.singleton import SingletonMeta
+from skarma.utils.db import DBUtils
 
 
 class ChatsManager(metaclass=SingletonMeta):
     """Store list of all bot's chats in database"""
+
+    blog = logging.getLogger('botlog')
+    db: DBUtils = DBUtils()
 
     def get_all_chats(self) -> List[int]:
         """Returns list of IDs of all bot's chats"""
@@ -33,4 +39,4 @@ class ChatsManager(metaclass=SingletonMeta):
 
     def add_new_chat(self, id_: int) -> None:
         """Add new bot's chat id"""
-        pass
+        self.db.run_single_update_query('insert into skarma.chats (chat_id) VALUES (%s)', [id_])
