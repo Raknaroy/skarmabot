@@ -19,13 +19,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
-from telegram.ext import Updater, CommandHandler
+import argparse
 import logging
 import logging.handlers
 import os
 import sys
 
 from os import path
+
+from telegram.ext import Updater, CommandHandler
 
 from skarma import commands
 from skarma.app_info import AppInfo
@@ -122,7 +124,24 @@ if __name__ == "__main__":
 
     bot_info = AppInfo()
 
-    updater = Updater(token=bot_info.app_dev_token, use_context=True)
+    blog.debug('Parsing arguments')
+    parser = argparse.ArgumentParser(description=bot_info.app_description)
+
+    parser.add_argument('--debug', '-d', help='Run bot dev version', action='store_true')
+
+    result = parser.parse_args()
+    DEBUG_MODE = result.debug
+
+    if DEBUG_MODE:
+        blog.info('Running in DEBUG mode')
+        token = bot_info.app_dev_token
+    else:
+        blog.info('Running in INFO mode')
+        token = bot_info.app_token
+
+    blog.debug('Running with token: ' + token)
+
+    updater = Updater(token=token, use_context=True)
     dispatcher = updater.dispatcher
     blog.info('Created updater and dispatcher')
 
