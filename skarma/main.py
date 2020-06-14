@@ -42,7 +42,8 @@ def setup_logging_ui() -> None:
     """
 
     if not path.exists(LOGGING_DIR) or not path.isdir(LOGGING_DIR) or not os.access(LOGGING_DIR, os.W_OK):
-        print(f'Can\t access logging directory.\n'
+        ErrorManager().report_error("Logging problem", "Can't access logging directory. Logging will be turned off.")
+        print(f'Can\'t access logging directory.\n'
               f'Please, run "sudo mkdir -p {LOGGING_DIR} && sudo chown $(whoami) {LOGGING_DIR}"\n'
               f'Logging will be turned off.')
         return
