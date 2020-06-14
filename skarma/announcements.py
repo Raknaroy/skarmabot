@@ -43,6 +43,6 @@ class ChatsManager(metaclass=SingletonMeta):
 
     def add_new_chat(self, id_: int) -> None:
         """Add new bot's chat id"""
-        result = self.db.run_single_query('select * from chats where chat_id = %d', [id_])
+        result = self.db.run_single_query('select * from chats where chat_id = %s', [id_])
         if len(result) == 0:
             self.db.run_single_update_query('insert into skarma.chats (chat_id) VALUES (%s)', [id_])
