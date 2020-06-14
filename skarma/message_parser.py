@@ -20,6 +20,7 @@
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
 from skarma.karma import KarmaManager
+from skarma.announcements import ChatsManager
 
 
 def message_handler(update, context):
@@ -49,3 +50,8 @@ def message_handler(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=f'-1 к карме {user_name}\n'
                                       f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
+
+
+def group_join_handler(update, _):
+    chat_id = update.effective_chat.id
+    ChatsManager().add_new_chat(chat_id)
