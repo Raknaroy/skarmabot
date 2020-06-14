@@ -59,10 +59,16 @@ class KarmaManager(metaclass=SingletonMeta):
         pass
 
     def change_user_karma(self, chat_id: int, user_id: int, change: int) -> None:
-        pass
+        result = self.db.run_single_query('select * from karma where chat_id = %s and user_id = %s', (chat_id, user_id))
+        if len(result) == 0:
+            self.db.run_single_update_query('insert into skarma.karma (chat_id, user_id, karma) VALUES (%s, %s, %s)',
+                                            (chat_id, user_id, change))
+        else:
+            self.db.run_single_update_query('update karma set karma = karma + %s where chat_id = %s and user_id = %s',
+                                        (change, chat_id, user_id))
 
     def increase_user_karma(self, chat_id: int, user_id: int, up_change: int) -> None:
-        pass
+        self.change_user_karma(chat_id, user_id, up_change)
 
     def decrease_user_karma(self, chat_id: int, user_id: int, down_change: int) -> None:
-        pass
+        self.change_user_karma(chat_id, user_id, -down_change)

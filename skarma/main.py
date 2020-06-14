@@ -27,9 +27,9 @@ import sys
 
 from os import path
 
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-from skarma import commands
+from skarma import commands, message_parser
 from skarma.app_info import AppInfo
 from skarma.utils.errorm import ErrorManager
 
@@ -165,6 +165,10 @@ if __name__ == "__main__":
     karma_handler = CommandHandler('my_karma', commands.my_karma)
     dispatcher.add_handler(karma_handler)
     blog.info('Added handler for /my_karma command')
+
+    message_handler = MessageHandler(Filters.reply & Filters.group & Filters.text & (~Filters.command), message_parser.message_handler)
+    dispatcher.add_handler(message_handler)
+    blog.info('Added handler for group reply messages')
 
     blog.info('Starting polling')
     updater.start_polling()
