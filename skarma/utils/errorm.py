@@ -20,6 +20,7 @@
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
 import traceback
+import logging
 import pprint
 
 from typing import List, Tuple, Type
@@ -39,6 +40,8 @@ class ErrorManager(metaclass=SingletonMeta):
     Errors are stored in 'errors' table in DB.
     """
 
+    blog = logging.getLogger('botlog')
+
     _dbu: DBUtils = DBUtils()
 
     report_by_email = True
@@ -50,13 +53,14 @@ class ErrorManager(metaclass=SingletonMeta):
 
     def report_error(self, name: str, stacktrace: str) -> None:
         """Report new error to DB"""
+        self.blog.info('Reporting new error: ' + name)
         self._dbu.run_single_update_query('insert into skarma.errors (name, stacktrace) VALUES (%s, %s)', (name, stacktrace))
 
         if self.report_by_email:
             try:
                 self._report_via_email(name, stacktrace)
             except Exception as e:
-                pass  # TODO: Logging
+                self.blog.exception(e)
 
     def report_exception(self, e: Exception) -> None:
         """Report new error to DB"""
