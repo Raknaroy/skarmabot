@@ -50,7 +50,7 @@ def status(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
-def support(update, context):
+def support(update, context):  # TODO: read links from config file
     """Send information about bot status"""
     logging.getLogger('botlog').info('Printing support info to chat with id ' + str(update.effective_chat.id))
 
