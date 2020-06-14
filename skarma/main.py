@@ -23,6 +23,7 @@ from telegram.ext import Updater, CommandHandler
 import logging
 import logging.handlers
 import os
+import sys
 
 from os import path
 
@@ -106,6 +107,12 @@ def setup_logging_ui() -> None:
 
 
 if __name__ == "__main__":
+    if sys.version_info < (3, 7):
+        print('Invalid python version. Use python 3.7 or newer')
+
+    if os.name != 'posix':
+        print('Invalid os! Use any UNIX or Linux machine, including macOS')
+
     setup_logging_ui()
 
     blog = logging.getLogger('botlog')
