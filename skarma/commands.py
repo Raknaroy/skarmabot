@@ -78,6 +78,6 @@ def my_karma(update, context):
     logging.getLogger('botlog').info(f'Printing karma of user #{update.effective_user.id} '
                                      f'in chat #{update.effective_chat.id}')
 
-    karma = KarmaManager().get_user_karma(update.effective_user.id, update.effective_chat.id)
+    karma = KarmaManager().get_user_karma(update.effective_chat.id, update.effective_user.id)
     context.bot.send_message(chat_id=update.effective_chat.id, text=f'Ваша карма: {karma}')
 
