@@ -43,9 +43,9 @@ def message_handler(update, context):
         km.increase_user_karma(chat_id, user_id, 1)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=f'+1 к карме {user_name}\n'
-                                      f'Теперь карма {user_name} состовляет {km.get_user_karma(chat_id, user_id)}')
+                                      f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
     elif text.startswith('-'):
         km.decrease_user_karma(chat_id, user_id, 1)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=f'-1 к карме {user_name}\n'
-                                      f'Теперь карма {user_name} состовляет {km.get_user_karma(chat_id, user_id)}')
+                                      f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
