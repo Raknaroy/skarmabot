@@ -24,6 +24,7 @@ import logging
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager
+from skarma.karma import KarmaManager
 
 
 def version(update, context):
@@ -70,3 +71,13 @@ def bug_report(update, context):
                                   'ошибках. Если вас не устраивает что вам/кому-то подняли/опустили карму без повода, '
                                   'обратитесь к администратору группы. Если вы нашли узявимость в боте, сообщите о ней '
                                   'тут: https://github.com/sandsbit/skarmabot/security/advisories/new.')
+
+
+def my_karma(update, context):
+    """Get user's karma"""
+    logging.getLogger('botlog').info(f'Printing karma of user #{update.effective_user.id} '
+                                     f'in chat #{update.effective_chat.id}')
+
+    karma = KarmaManager().get_user_karma(update.effective_user.id, update.effective_chat.id)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f'Your karma is {karma}')
+

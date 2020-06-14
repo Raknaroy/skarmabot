@@ -162,5 +162,9 @@ if __name__ == "__main__":
     dispatcher.add_handler(support_handler)
     blog.info('Added handler for /support command')
 
+    karma_handler = CommandHandler('my_karma', commands.my_karma)
+    dispatcher.add_handler(karma_handler)
+    blog.info('Added handler for /my_karma command')
+
     blog.info('Starting polling')
     updater.start_polling()
