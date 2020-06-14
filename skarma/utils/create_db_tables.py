@@ -70,10 +70,13 @@ def create_chats_table(dbu: DBUtils):
 
     dbu.run_single_update_query("""create table chats
                                    (
-                                     id int not null,
-                                     constraint chats_pk
-                                      primary key (id)
-                                   );""")
+                                        id int auto_increment,
+                                        chat_id text not null,
+                                        constraint chats_pk
+                                            primary key (id)
+                                   );
+
+""")
 
 
 def create_announcements_table(dbu: DBUtils):
