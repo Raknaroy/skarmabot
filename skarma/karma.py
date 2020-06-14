@@ -21,6 +21,10 @@
 
 import logging
 
+from pprint import pformat
+
+from mysql.connector.errors import DatabaseError
+
 from skarma.utils.singleton import SingletonMeta
 from skarma.utils.db import DBUtils
 
@@ -29,10 +33,21 @@ class KarmaManager(metaclass=SingletonMeta):
     """Api to work with karma table in database"""
 
     blog = logging.getLogger('botlog')
-    db = DBUtils()
+    db: DBUtils = DBUtils()
 
     def get_user_karma(self, chat_id: int, user_id: int) -> int:
-        pass
+        self.blog.debug(f'Getting karma of user #{user_id} in chat #{chat_id}')
+        result = self.db.run_single_query('select karma from karma where chat_id = %s and user_id = %s',
+                                          (chat_id, user_id))
+        if len(result) == 0:
+            return 0
+
+        if (len(result) != 1) or (len(result[0]) != 1):
+            msg = 'Invalid database response for getting user karma: ' + pformat(result)
+            self.blog.error('Invalid database response for getting user karma: ' + pformat(result))
+            raise DatabaseError(msg)
+
+        return result[0][0]
 
     def set_user_karma(self, chat_id: int, user_id: int) -> None:
         pass
