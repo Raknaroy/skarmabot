@@ -19,12 +19,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+
 from os import path
 from configparser import ConfigParser
 
 
 class DBInfo:
     """Parse information from db.conf"""
+
+    blog = logging.getLogger('botlog')
 
     DB_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/db.conf')
 
@@ -42,11 +46,18 @@ class DBInfo:
         Raise FileNotFoundError if file doesn't exist
         """
 
+        self.blog.info('Creating new DBInfo class instance')
+        self.blog.debug('Reading DB config file from : ' + path.abspath(self.DB_CONFIG_FILE))
+
         if not path.isfile(self.DB_CONFIG_FILE):
-            raise FileNotFoundError("Couldn't find DB config file path: " + self.DB_CONFIG_FILE)
+            msg = "Couldn't find DB config file path: " + self.DB_CONFIG_FILE
+            self.blog.fatal(msg)
+            raise FileNotFoundError(msg)
 
         app_config = ConfigParser()
         app_config.read(self.DB_CONFIG_FILE)
+
+        self.blog.debug('Successfully read DB config file')
 
         self.host = app_config['GENERAL']['host']
         self.port = int(app_config['GENERAL']['port'])

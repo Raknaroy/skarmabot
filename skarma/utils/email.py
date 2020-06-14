@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -29,6 +31,9 @@ from skarma.email_info import EmailInfo
 def send_email(to: str, subject: str, content: str):
     """Send email from email that is configured in email.conf"""
 
+    blog = logging.getLogger('botlog')
+    blog.info(f'Sending email "{subject}" to {to}')
+
     emi = EmailInfo()
 
     message = MIMEMultipart()
@@ -38,9 +43,15 @@ def send_email(to: str, subject: str, content: str):
 
     message.attach(MIMEText(content, 'plain'))
 
+    blog.debug('Sending email: ended creating message')
+
     session = SMTP(emi.smtp_host, emi.smtp_port)
     session.starttls()
     session.login(emi.user_from, emi.password_from)
 
+    blog.debug('Sending email: created SMTP session')
+
     body = message.as_string()
     session.sendmail(emi.user_from, to, body)
+
+    blog.debug('Email successfully sent')

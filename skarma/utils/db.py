@@ -19,10 +19,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+
+from typing import List, Tuple, Any, Optional
+from pprint import pformat
+
 import mysql.connector
 
 from mysql.connector import MySQLConnection
-from typing import List, Tuple, Any, Union
 
 from skarma.db_info import DBInfo
 from skarma.utils.singleton import SingletonMeta
@@ -30,12 +34,15 @@ from skarma.utils.singleton import SingletonMeta
 
 class DBUtils(metaclass=SingletonMeta):
 
-    _botdb: Union[MySQLConnection, None] = None
+    blog = logging.getLogger('botlog')
+
+    _botdb: Optional[MySQLConnection] = None
 
     def __init__(self) -> None:
         """
         Init global botdb variable with new MySql connection.
         """
+        self.blog.info('Initializing database managing connection')
         dbi = DBInfo()
 
         self._botdb = mysql.connector.connect(
@@ -46,7 +53,11 @@ class DBUtils(metaclass=SingletonMeta):
             database=dbi.database
         )
 
+        self.blog.info(f'Connected to database on {dbi.user}@{dbi.host}:{dbi.port} successfully')
+
         self.run_single_update_query('SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED')
+
+        self.blog.debug('Set MySql session transaction isolation level to READ UNCOMMITTED')
 
     def run_single_query(self, operation: str, params=()) -> List[Tuple[Any]]:
         """
@@ -60,10 +71,15 @@ class DBUtils(metaclass=SingletonMeta):
         to avoid SQL injections. You can report SQL injections problems found in
         the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
         """
+        self.blog.debug('Running single SELECT query: ' + operation + 'with params: ' + pformat(params))
+
         cursor_ = self._botdb.cursor()
         cursor_.execute(operation, params)
 
         res_ = cursor_.fetchall()
+
+        self.blog.debug(f'Got {cursor_.rowcount} rows in response')
+
         cursor_.close()
         return res_
 
@@ -79,6 +95,8 @@ class DBUtils(metaclass=SingletonMeta):
         to avoid SQL injections. You can report SQL injections problems found in
         the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
         """
+        self.blog.debug('Running single NOT select query: ' + operation + 'with params: ' + pformat(params))
+
         cursor_ = self._botdb.cursor()
         cursor_.execute(operation, params)
 

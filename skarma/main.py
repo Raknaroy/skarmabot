@@ -116,11 +116,15 @@ if __name__ == "__main__":
 
     updater = Updater(token=bot_info.app_dev_token, use_context=True)
     dispatcher = updater.dispatcher
+    blog.info('Created updater and dispatcher')
 
     version_handler = CommandHandler('version', commands.version)
     dispatcher.add_handler(version_handler)
+    blog.info('Added handler for /version command')
 
     version_handler = CommandHandler('status', commands.status)
     dispatcher.add_handler(version_handler)
+    blog.info('Added handler for /status command')
 
+    blog.info('Starting polling')
     updater.start_polling()

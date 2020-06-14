@@ -19,12 +19,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+
 from os import path
 from configparser import ConfigParser
 
 
 class AppInfo:
     """Parse information from app.conf"""
+
+    blog = logging.getLogger('botlog')
 
     APP_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/app.conf')
 
@@ -43,11 +47,18 @@ class AppInfo:
         Raise FileNotFoundError if file doesn't exist
         """
 
+        self.blog.info('Creating new AppInfo class instance')
+        self.blog.debug('Reading app config file from : ' + path.abspath(self.APP_CONFIG_FILE))
+
         if not path.isfile(self.APP_CONFIG_FILE):
-            raise FileNotFoundError("Couldn't find config file path: " + self.APP_CONFIG_FILE)
+            msg = "Couldn't find config file path: " + self.APP_CONFIG_FILE
+            self.blog.fatal(msg)
+            raise FileNotFoundError(msg)
 
         app_config = ConfigParser()
         app_config.read(self.APP_CONFIG_FILE)
+
+        self.blog.debug('Successfully read app config file')
 
         self.app_name = app_config['GENERAL']['bot_name']
         self.app_description = app_config['GENERAL']['bot_desc']

@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager
@@ -26,6 +28,7 @@ from skarma.utils.errorm import ErrorManager
 
 def version(update, context):
     """Send information about bot"""
+    logging.getLogger('botlog').info('Printing version info to chat with id ' + str(update.effective_chat.id))
 
     bot_info = AppInfo()
     message = f"{bot_info.app_name} {bot_info.app_version}\n" \
@@ -36,6 +39,7 @@ def version(update, context):
 
 def status(update, context):
     """Send information about bot status"""
+    logging.getLogger('botlog').info('Printing status info to chat with id ' + str(update.effective_chat.id))
 
     number_of_errors = ErrorManager().get_number_of_errors()
     message = f"Status: Running ({'Stable' if number_of_errors == 0 else 'Unstable'})\n" \

@@ -19,12 +19,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+
 from os import path
 from configparser import ConfigParser
 
 
 class EmailInfo:
     """Parse information from db.conf"""
+
+    blog = logging.getLogger('botlog')
 
     EMIAL_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/email.conf')
 
@@ -43,11 +47,18 @@ class EmailInfo:
         Raise FileNotFoundError if file doesn't exist
         """
 
+        self.blog.info('Creating new EmailInfo class instance')
+        self.blog.debug('Reading email info file from : ' + path.abspath(self.EMIAL_CONFIG_FILE))
+
         if not path.isfile(self.EMIAL_CONFIG_FILE):
-            raise FileNotFoundError("Couldn't find DB config file path: " + self.EMIAL_CONFIG_FILE)
+            msg = "Couldn't find DB config file path: " + self.EMIAL_CONFIG_FILE
+            self.blog.error(msg)
+            raise FileNotFoundError(msg)
 
         app_config = ConfigParser()
         app_config.read(self.EMIAL_CONFIG_FILE)
+
+        self.blog.debug('Successfully read email config file')
 
         self.smtp_host = app_config['SERVER']['smtp_host']
         self.smtp_port = int(app_config['SERVER']['smtp_port'])
