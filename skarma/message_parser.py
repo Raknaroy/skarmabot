@@ -28,13 +28,17 @@ def message_handler(update, context):
     from_user_id = update.effective_user.id
     user_id = update.message.reply_to_message.from_user.id
     user_name = update.message.reply_to_message.from_user.name
-
-    if from_user_id == user_id:
-        context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f'Хитрюга!')
-        return
-
     text: str = update.message.text
+
+    if text.startswith('+') or text.startswith('-'):
+        if from_user_id == user_id:
+            context.bot.send_message(chat_id=update.effective_chat.id, text=f'Хитрюга!')
+            return
+
+        if update.message.reply_to_message.from_user.is_bot:
+            context.bot.send_message(chat_id=update.effective_chat.id, text='У роботов нет кармы')
+            return
+
     if text.startswith('+'):
         km.increase_user_karma(chat_id, user_id, 1)
         context.bot.send_message(chat_id=update.effective_chat.id,
