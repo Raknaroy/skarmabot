@@ -130,9 +130,17 @@ if __name__ == "__main__":
     dispatcher.add_handler(version_handler)
     blog.info('Added handler for /version command')
 
-    version_handler = CommandHandler('status', commands.status)
-    dispatcher.add_handler(version_handler)
+    status_handler = CommandHandler('status', commands.status)
+    dispatcher.add_handler(status_handler)
     blog.info('Added handler for /status command')
+
+    report_handler = CommandHandler('bug_report', commands.bug_report)
+    dispatcher.add_handler(report_handler)
+    blog.info('Added handler for /bug_report command')
+
+    support_handler = CommandHandler('support', commands.support)
+    dispatcher.add_handler(support_handler)
+    blog.info('Added handler for /support command')
 
     blog.info('Starting polling')
     updater.start_polling()

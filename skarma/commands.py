@@ -46,3 +46,25 @@ def status(update, context):
               f"Unexpected errors: {number_of_errors}\n" \
               f"Database connection status: " + ("connected" if DBUtils().is_connected() else "disconnected (error)")
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+
+
+def support(update, context):
+    """Send information about bot status"""
+    logging.getLogger('botlog').info('Printing support info to chat with id ' + str(update.effective_chat.id))
+
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text='Вы можете задать свой вопрос или преложить идею для бота по адрессу '
+                                  'https://github.com/sandsbit/skarmabot/issues (толькпо по англ.) или '
+                                  'же по написв на почту <nikitaserba@icloud.com>')
+
+
+def bug_report(update, context):
+    """Send information about bot status"""
+    logging.getLogger('botlog').info('Printing bug report info to chat with id ' + str(update.effective_chat.id))
+
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text='Сообщить об ошибке можно по адрессу https://github.com/sandsbit/skarmabot/issues '
+                                  '(толькл по англ.). Используйте эту форму только для сообщения об технических '
+                                  'ошибках. Если вас не устраивает что вам/кому-то подняли/опустили карму без повода, '
+                                  'обратитесь к администратору группы. Если вы нашли узявимость в боте, сообщите о ней'
+                                  'тут: https://github.com/sandsbit/skarmabot/security/advisories/new.')
