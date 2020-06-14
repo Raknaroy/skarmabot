@@ -47,6 +47,22 @@ def create_error_table(dbu: DBUtils):
                                );""")
 
 
+def create_karma_table(dbu: DBUtils):
+    tables = dbu.run_single_query("SHOW TABLES;")
+    if tuple('karma') in tables:
+        raise DatabaseError("Table 'karma' already exists")
+
+    dbu.run_single_update_query("""create table karma
+                                   (
+                                        id int auto_increment,
+                                        chat_id int not null,
+                                        user_id int not null,
+                                        karma int default 0 not null,
+                                        constraint karma_pk
+                                            primary key (id)
+                                   );""")
+
+
 def _run_functions_and_print_db_errors(functions: List[Callable[[DBUtils], None]], dbu: DBUtils):
     for fun in functions:
         try:
@@ -58,5 +74,5 @@ def _run_functions_and_print_db_errors(functions: List[Callable[[DBUtils], None]
 if __name__ == '__main__':
     dbu = DBUtils()
 
-    _run_functions_and_print_db_errors([create_error_table], dbu)
+    _run_functions_and_print_db_errors([create_error_table, create_karma_table], dbu)
     print('Done.')
