@@ -23,6 +23,8 @@ import logging
 
 from typing import List
 
+from mysql.connector.errors import DatabaseError
+
 from skarma.utils.singleton import SingletonMeta
 from skarma.utils.db import DBUtils
 
@@ -35,7 +37,9 @@ class ChatsManager(metaclass=SingletonMeta):
 
     def get_all_chats(self) -> List[int]:
         """Returns list of IDs of all bot's chats"""
-        pass
+        resp = self.db.run_single_query('select * from chats')
+        result = [i[1] for i in resp]
+        return result
 
     def add_new_chat(self, id_: int) -> None:
         """Add new bot's chat id"""
