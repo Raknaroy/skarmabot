@@ -166,6 +166,10 @@ if __name__ == "__main__":
     dispatcher.add_handler(karma_handler)
     blog.info('Added handler for /my_karma command')
 
+    start_handler = CommandHandler('start', commands.start)
+    dispatcher.add_handler(start_handler)
+    blog.info('Added handler for /start command')
+
     message_handler = MessageHandler(Filters.reply & Filters.group & Filters.text & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')
