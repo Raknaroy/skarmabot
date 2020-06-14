@@ -55,7 +55,7 @@ def support(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text='Вы можете задать свой вопрос или преложить идею для бота по адрессу '
                                   'https://github.com/sandsbit/skarmabot/issues (толькпо по англ.) или '
-                                  'же по написв на почту <nikitaserba@icloud.com>')
+                                  'же по написв на почту <nikitaserba@icloud.com>.')
 
 
 def bug_report(update, context):
@@ -66,5 +66,5 @@ def bug_report(update, context):
                              text='Сообщить об ошибке можно по адрессу https://github.com/sandsbit/skarmabot/issues '
                                   '(толькл по англ.). Используйте эту форму только для сообщения об технических '
                                   'ошибках. Если вас не устраивает что вам/кому-то подняли/опустили карму без повода, '
-                                  'обратитесь к администратору группы. Если вы нашли узявимость в боте, сообщите о ней'
+                                  'обратитесь к администратору группы. Если вы нашли узявимость в боте, сообщите о ней '
                                   'тут: https://github.com/sandsbit/skarmabot/security/advisories/new.')
