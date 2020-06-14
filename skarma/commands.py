@@ -79,5 +79,5 @@ def my_karma(update, context):
                                      f'in chat #{update.effective_chat.id}')
 
     karma = KarmaManager().get_user_karma(update.effective_user.id, update.effective_chat.id)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=f'Ваша карма равна {karma}')
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f'Ваша карма: {karma}')
 
