@@ -39,11 +39,13 @@ def version(update, context):
 
 def status(update, context):
     """Send information about bot status"""
-    logging.getLogger('botlog').info('Printing status info to chat with id ' + str(update.effective_chat.id))
+    blog = logging.getLogger('botlog')
+    blog.info('Printing status info to chat with id ' + str(update.effective_chat.id))
 
     number_of_errors = ErrorManager().get_number_of_errors()
     message = f"Status: Running in DEBUG mode ({'Stable' if number_of_errors == 0 else 'Unstable'})\n" \
               f"Unexpected errors: {number_of_errors}\n" \
+              f"Logging status: " + ("logging normally\n" if len(blog.handlers) != 0 else "logging init failed\n") + \
               f"Database connection status: " + ("connected" if DBUtils().is_connected() else "disconnected (error)")
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
