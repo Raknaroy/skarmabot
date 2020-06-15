@@ -65,9 +65,10 @@ class AnnouncementsThread(Thread):
 
             announcements = am.get_all_announcements()
 
-            for _, msg in announcements:
+            for id_, msg in announcements:
                 for chat_id in self.chats:
                     self.bot.send_message(chat_id=chat_id, text=msg)
+                am.delete_announcement(id_)
 
 
 def message_handler(update, context):
