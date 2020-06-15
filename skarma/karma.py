@@ -58,8 +58,8 @@ class UsernamesManager:
         """Set name of user with given id"""
         self.blog.info(f'Setting username of user with id #{id_} to "{name}"')
 
-        self.db.run_single_update_query('insert into usernames (user_id, name) values (%id, %name) '
-                                        'on duplicate key update name = %name', {'id': id_, 'name': name})
+        self.db.run_single_update_query('insert into usernames (user_id, name) values (%(id)s, %(name)s) '
+                                        'on duplicate key update name = %(name)s', {'id': id_, 'name': name})
 
 
 class KarmaManager(metaclass=SingletonMeta):
