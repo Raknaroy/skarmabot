@@ -171,6 +171,14 @@ if __name__ == "__main__":
     dispatcher.add_handler(start_handler)
     blog.info('Added handler for /start command')
 
+    top_handler = CommandHandler('top', commands.top)
+    dispatcher.add_handler(top_handler)
+    blog.info('Added handler for /top command')
+
+    antitop_handler = CommandHandler('antitop', commands.antitop)
+    dispatcher.add_handler(antitop_handler)
+    blog.info('Added handler for /antitop command')
+
     message_handler = MessageHandler(Filters.reply & Filters.group & Filters.text & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')

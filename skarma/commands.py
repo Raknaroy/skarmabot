@@ -24,7 +24,7 @@ import logging
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager, catch_error
-from skarma.karma import KarmaManager
+from skarma.karma import KarmaManager, UsernamesManager, NoSuchUser
 from skarma.announcements import ChatsManager
 
 
@@ -86,6 +86,48 @@ def my_karma(update, context):
 
     karma = KarmaManager().get_user_karma(update.effective_chat.id, update.effective_user.id)
     context.bot.send_message(chat_id=update.effective_chat.id, text=f'Ваша карма: {karma}')
+
+
+@catch_error
+def top(update, context):
+    """Print top 5 of chat"""
+
+    chat_id = update.effective_user.id
+
+    logging.getLogger('botlog').info(f'Printing TOP-5 user in chat #{chat_id}')
+
+    message = 'ТОП-5 людей с лучшей кармой:\n'
+
+    top_ = KarmaManager().get_ordered_karma_top(chat_id, 5)
+    for user_id, karma in top_:
+        try:
+            user_name = UsernamesManager().get_username_by_id(user_id)
+        except NoSuchUser:
+            user_name = f'Unnamed user ({user_id})'
+        message += f'{user_name} - {karma}'
+
+    context.bot.send_message(chat_id=chat_id, text=message)
+
+
+@catch_error
+def antitop(update, context):
+    """Print anti-top 5 of chat"""
+
+    chat_id = update.effective_user.id
+
+    logging.getLogger('botlog').info(f'Printing TOP-5 user in chat #{chat_id}')
+
+    message = 'ТОП-5 людей с худшей кармой:\n'
+
+    top_ = KarmaManager().get_ordered_karma_top(chat_id, 5, biggest=False)
+    for user_id, karma in top_:
+        try:
+            user_name = UsernamesManager().get_username_by_id(user_id)
+        except NoSuchUser:
+            user_name = f'Unnamed user ({user_id})'
+        message += f'{user_name} - {karma}'
+
+    context.bot.send_message(chat_id=chat_id, text=message)
 
 
 @catch_error
