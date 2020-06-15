@@ -178,5 +178,9 @@ if __name__ == "__main__":
     dispatcher.add_handler(group_join_handler)
     blog.info('Added handler for group join')
 
+    blog.info('Starting announcements thread')
+    ann_thread = message_parser.AnnouncementsThread(updater.bot)
+    ann_thread.start()
+
     blog.info('Starting polling')
     updater.start_polling()
