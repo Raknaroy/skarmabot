@@ -23,6 +23,7 @@ import traceback
 import logging
 import pprint
 
+from functools import wraps
 from typing import List, Tuple, Type
 
 from mysql.connector.errors import DatabaseError
@@ -79,3 +80,22 @@ class ErrorManager(metaclass=SingletonMeta):
     def _report_via_email(name: str, stacktrace: str) -> None:
         """Send error report to email. See email.conf for more information"""
         email.send_email(EmailInfo().user_to, 'Error in SKarma: ' + name, stacktrace)  # TODO: Replce name
+
+
+def catch_error(f):
+    """
+    Catches errors in handlers.
+
+    Thanks to https://github.com/Lanseuo!
+    See https://github.com/python-telegram-bot/python-telegram-bot/issues/855 for more information
+    """
+
+    @wraps(f)
+    def wrap(bot, update):
+        try:
+            return f(bot, update)
+        except Exception as e:
+            logging.getLogger('botlog').exception(e)
+            ErrorManager().report_exception(e)
+
+    return wrap

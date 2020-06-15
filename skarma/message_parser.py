@@ -28,7 +28,7 @@ from telegram import Bot
 from telegram.error import TimedOut, RetryAfter, Unauthorized
 
 from skarma.karma import KarmaManager, UsernamesManager
-from skarma.utils.errorm import ErrorManager
+from skarma.utils.errorm import ErrorManager, catch_error
 from skarma.announcements import ChatsManager, AnnouncementsManager
 
 
@@ -113,6 +113,7 @@ class AnnouncementsThread(Thread):
             time.sleep(10*60)
 
 
+@catch_error
 def message_handler(update, context):
     km: KarmaManager = KarmaManager()
     chat_id = update.effective_chat.id
@@ -145,6 +146,7 @@ def message_handler(update, context):
                                       f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
 
 
+@catch_error
 def group_join_handler(update, _):
     chat_id = update.effective_chat.id
     logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')

@@ -23,11 +23,12 @@ import logging
 
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
-from skarma.utils.errorm import ErrorManager
+from skarma.utils.errorm import ErrorManager, catch_error
 from skarma.karma import KarmaManager
 from skarma.announcements import ChatsManager
 
 
+@catch_error
 def version(update, context):
     """Send information about bot"""
     logging.getLogger('botlog').info('Printing version info to chat with id ' + str(update.effective_chat.id))
@@ -39,6 +40,7 @@ def version(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
+@catch_error
 def status(update, context):
     """Send information about bot status"""
     blog = logging.getLogger('botlog')
@@ -52,6 +54,7 @@ def status(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
+@catch_error
 def support(update, context):  # TODO: read links from config file
     """Send information about bot status"""
     logging.getLogger('botlog').info('Printing support info to chat with id ' + str(update.effective_chat.id))
@@ -62,6 +65,7 @@ def support(update, context):  # TODO: read links from config file
                                   'же по написв на почту <nikitaserba@icloud.com>.')
 
 
+@catch_error
 def bug_report(update, context):
     """Send information about bot status"""
     logging.getLogger('botlog').info('Printing bug report info to chat with id ' + str(update.effective_chat.id))
@@ -74,6 +78,7 @@ def bug_report(update, context):
                                   'тут: https://github.com/sandsbit/skarmabot/security/advisories/new.')
 
 
+@catch_error
 def my_karma(update, context):
     """Get user's karma"""
     logging.getLogger('botlog').info(f'Printing karma of user #{update.effective_user.id} '
@@ -83,6 +88,7 @@ def my_karma(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=f'Ваша карма: {karma}')
 
 
+@catch_error
 def start(update, _):
     """Save user's chat id"""
     # TODO: help
