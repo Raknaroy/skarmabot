@@ -87,9 +87,11 @@ class AnnouncementsThread(Thread):
             except Unauthorized:
                 self.blog.info(f'Bot was blocked by user with id #{chat_id}')
                 ChatsManager().remove_chat(chat_id)
+                succ = True
             except Exception as e:
                 self.blog.error(e)
                 ErrorManager().report_exception(e)
+                succ = True
 
             if succ:
                 break
