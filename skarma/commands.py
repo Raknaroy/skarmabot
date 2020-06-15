@@ -96,7 +96,7 @@ def top(update, context):
 
     logging.getLogger('botlog').info(f'Printing TOP-5 user in chat #{chat_id}')
 
-    message = 'ТОП-5 людей с лучшей кармой:\n'
+    message = 'ТОП-5 людей с лучшей кармой:\n\n'
 
     top_ = KarmaManager().get_ordered_karma_top(chat_id, 5)
     for user_id, karma in top_:
@@ -104,7 +104,7 @@ def top(update, context):
             user_name = UsernamesManager().get_username_by_id(user_id)
         except NoSuchUser:
             user_name = f'Unnamed user ({user_id})'
-        message += f'{user_name} - {karma}\n'
+        message += f'{user_name}: {karma}\n'
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
@@ -117,7 +117,7 @@ def antitop(update, context):
 
     logging.getLogger('botlog').info(f'Printing TOP-5 user in chat #{chat_id}')
 
-    message = 'ТОП-5 людей с худшей кармой:\n'
+    message = 'ТОП-5 людей с худшей кармой:\n\n'
 
     top_ = KarmaManager().get_ordered_karma_top(chat_id, 5, biggest=False)
     for user_id, karma in top_:
@@ -125,7 +125,7 @@ def antitop(update, context):
             user_name = UsernamesManager().get_username_by_id(user_id)
         except NoSuchUser:
             user_name = f'Unnamed user ({user_id})'
-        message += f'{user_name} - {karma}\n'
+        message += f'{user_name}: {karma}\n'
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
