@@ -19,8 +19,55 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+import time
+import logging
+
+from threading import Thread
+
+from telegram import Bot
+
 from skarma.karma import KarmaManager
-from skarma.announcements import ChatsManager
+from skarma.announcements import ChatsManager, AnnouncementsManager
+
+
+class AnnouncementsThread(Thread):
+    """This thread checks for announcements and send them if there are any"""
+
+    blog = logging.getLogger('botlog')
+
+    chats = []
+    last_chats_change_time = -1
+
+    bot: Bot
+
+    def __init__(self, bot: Bot):
+        Thread.__init__(self)
+
+        self.change_chats_if_needed()
+        self.bot = Bot
+
+    def change_chats_if_needed(self) -> bool:
+        """
+        Reloads chats list from database if it hasn't been reloaded for five minutes
+
+        Returns true if chats was reloaded and false if it five minutes hasn't passed since last reload.
+        """
+        current_time = time.time()
+        if current_time - self.last_chats_change_time > 5*60:
+            self.chats = ChatsManager().get_all_chats()
+            return True
+        return False
+
+    def run(self) -> None:
+        am = AnnouncementsManager()
+        while True:
+            self.change_chats_if_needed()
+
+            announcements = am.get_all_announcements()
+
+            for _, msg in announcements:
+                for chat_id in self.chats:
+                    self.bot.send_message(chat_id, text=msg)
 
 
 def message_handler(update, context):
