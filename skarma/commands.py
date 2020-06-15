@@ -142,8 +142,8 @@ def gen_error(update, context):
     logging.getLogger('botlog').info(f'Generating sample error! Asked by user #{user_id} in chat #{chat_id}')
 
     if user_id in admins:
-        ErrorManager().report_error('Test error', 'This sample error was generated for debugging '
-                                                  'by user #{user_id} in chat #{chat_id}')
+        ErrorManager().report_error('Test error', f'This sample error was generated for debugging '
+                                                  f'by user #{user_id} in chat #{chat_id}')
         context.bot.send_message(chat_id=chat_id, text='Sample error successfully generated')
     else:
         logging.getLogger('botlog').debug('Error could bot be generated: access denied. Check admins list')
