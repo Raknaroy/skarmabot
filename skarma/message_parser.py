@@ -25,6 +25,7 @@ import logging
 from threading import Thread
 
 from telegram import Bot
+from telegram.error import TimedOut, RetryAfter
 
 from skarma.karma import KarmaManager
 from skarma.announcements import ChatsManager, AnnouncementsManager
@@ -58,6 +59,26 @@ class AnnouncementsThread(Thread):
             return True
         return False
 
+    def _try_send_message(self, chat_id: int, msg: str):
+        i = 0
+        while True:
+            i += 1
+
+            if i == 10:
+                raise TimeoutError('Message sending failed after 10 attempts')
+
+            succ = False
+            try:
+                self.bot.send_message(chat_id=chat_id, text=msg)
+                succ = True
+            except TimedOut:
+                pass
+            except RetryAfter as e:
+                time.sleep(e.retry_after)
+
+            if succ:
+                break
+
     def run(self) -> None:
         am = AnnouncementsManager()
         while True:
@@ -67,8 +88,10 @@ class AnnouncementsThread(Thread):
 
             for id_, msg in announcements:
                 for chat_id in self.chats:
-                    self.bot.send_message(chat_id=chat_id, text=msg)
+                    time.sleep(2)
+                    self._try_send_message(chat_id, msg)
                 am.delete_announcement(id_)
+            time.sleep(10*60)
 
 
 def message_handler(update, context):
