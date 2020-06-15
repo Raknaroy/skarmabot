@@ -115,6 +115,6 @@ class KarmaManager(metaclass=SingletonMeta):
 
         order = 'desc' if biggest else 'asc'
         symbol = '>'if biggest else '<'
-        self.db.run_single_query(f'select distinct user_id, karma from karma where chat_id = %s and karma {symbol} 0 '
+        return self.db.run_single_query(f'select distinct user_id, karma from karma where chat_id = %s and karma {symbol} 0 '
                                  f'order by karma {order} limit %s',
                                  [chat_id, amount])
