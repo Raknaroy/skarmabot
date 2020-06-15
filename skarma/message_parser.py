@@ -27,7 +27,7 @@ from threading import Thread
 from telegram import Bot
 from telegram.error import TimedOut, RetryAfter, Unauthorized
 
-from skarma.karma import KarmaManager
+from skarma.karma import KarmaManager, UsernamesManager
 from skarma.utils.errorm import ErrorManager
 from skarma.announcements import ChatsManager, AnnouncementsManager
 
@@ -122,6 +122,9 @@ def message_handler(update, context):
     text: str = update.message.text
 
     if text.startswith('+') or text.startswith('-'):
+        unm = UsernamesManager()
+        unm.set_username(user_id, user_name)
+
         if from_user_id == user_id:
             context.bot.send_message(chat_id=update.effective_chat.id, text=f'Хитрюга!')
             return
