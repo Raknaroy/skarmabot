@@ -115,12 +115,16 @@ class AnnouncementsThread(Thread):
 
 @catch_error
 def message_handler(update, context):
+    """Parse message that change someone's karma"""
+
     km: KarmaManager = KarmaManager()
     chat_id = update.effective_chat.id
     from_user_id = update.effective_user.id
     user_id = update.message.reply_to_message.from_user.id
     user_name = update.message.reply_to_message.from_user.name
     text: str = update.message.text
+
+    logging.getLogger('botlog').info(f'Checking reply message from user #{from_user_id} in chat #{chat_id}')
 
     if text.startswith('+') or text.startswith('-'):
         unm = UsernamesManager()

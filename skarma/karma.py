@@ -93,6 +93,8 @@ class KarmaManager(metaclass=SingletonMeta):
         pass
 
     def change_user_karma(self, chat_id: int, user_id: int, change: int) -> None:
+        self.blog.debug(f'Changing karma of user #{user_id} in chat #{chat_id}. change = {change}')
+
         result = self.db.run_single_query('select * from karma where chat_id = %s and user_id = %s', (chat_id, user_id))
         if len(result) == 0:
             self.db.run_single_update_query('insert into skarma.karma (chat_id, user_id, karma) VALUES (%s, %s, %s)',
@@ -112,6 +114,7 @@ class KarmaManager(metaclass=SingletonMeta):
         Get ordered *amount* people from chat with biggedt (biggest = True) or smallest (biggest = False) karma.
         Returns list with tuples, which contain users' IDs and karma
         """
+        self.blog.debug(f'Getting chat #{chat_id} TOP. amount = {amount}, biggest = {biggest}')
 
         order = 'desc' if biggest else 'asc'
         symbol = '>'if biggest else '<'
