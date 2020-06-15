@@ -63,6 +63,36 @@ def create_karma_table(dbu: DBUtils):
                                    );""")
 
 
+def create_chats_table(dbu: DBUtils):
+    tables = dbu.run_single_query("SHOW TABLES;")
+    if tuple('chats') in tables:
+        raise DatabaseError("Table 'chats' already exists")
+
+    dbu.run_single_update_query("""create table chats
+                                   (
+                                        id int auto_increment,
+                                        chat_id text not null,
+                                        constraint chats_pk
+                                            primary key (id)
+                                   );
+
+""")
+
+
+def create_announcements_table(dbu: DBUtils):
+    tables = dbu.run_single_query("SHOW TABLES;")
+    if tuple('announcements') in tables:
+        raise DatabaseError("Table 'announcements' already exists")
+
+    dbu.run_single_update_query("""create table announcements
+                                   (
+                                     id int auto_increment,
+                                     text longtext not null,
+                                     constraint announcements_pk
+                                      primary key (id)
+                                   );""")
+
+
 def _run_functions_and_print_db_errors(functions: List[Callable[[DBUtils], None]], dbu: DBUtils):
     for fun in functions:
         try:
@@ -74,5 +104,6 @@ def _run_functions_and_print_db_errors(functions: List[Callable[[DBUtils], None]
 if __name__ == '__main__':
     dbu = DBUtils()
 
-    _run_functions_and_print_db_errors([create_error_table, create_karma_table], dbu)
+    _run_functions_and_print_db_errors([create_error_table, create_karma_table,
+                                        create_chats_table, create_announcements_table], dbu)
     print('Done.')

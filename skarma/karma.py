@@ -49,7 +49,7 @@ class KarmaManager(metaclass=SingletonMeta):
 
         return result[0][0]
 
-    def set_user_karma(self, chat_id: int, user_id: int) -> None:
+    def set_user_karma(self, chat_id: int, user_id: int) -> None:  # TODO
         pass
 
     def clean_user_karma(self, chat_id: int, user_id: int) -> None:

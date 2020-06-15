@@ -25,6 +25,7 @@ from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager
 from skarma.karma import KarmaManager
+from skarma.announcements import ChatsManager
 
 
 def version(update, context):
@@ -81,3 +82,11 @@ def my_karma(update, context):
     karma = KarmaManager().get_user_karma(update.effective_chat.id, update.effective_user.id)
     context.bot.send_message(chat_id=update.effective_chat.id, text=f'Ваша карма: {karma}')
 
+
+def start(update, _):
+    """Save user's chat id"""
+    # TODO: help
+
+    chat_id = update.effective_chat.id
+    logging.getLogger('botlog').info(f'User with id #{chat_id} will be added to database after running /start')
+    ChatsManager().add_new_chat(chat_id)
