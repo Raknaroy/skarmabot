@@ -44,7 +44,7 @@ class AnnouncementsThread(Thread):
         Thread.__init__(self)
 
         self.change_chats_if_needed()
-        self.bot = Bot
+        self.bot = bot
 
     def change_chats_if_needed(self) -> bool:
         """
@@ -67,7 +67,7 @@ class AnnouncementsThread(Thread):
 
             for _, msg in announcements:
                 for chat_id in self.chats:
-                    self.bot.send_message(chat_id, text=msg)
+                    self.bot.send_message(chat_id=chat_id, text=msg)
 
 
 def message_handler(update, context):
