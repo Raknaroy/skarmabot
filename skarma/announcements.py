@@ -36,15 +36,19 @@ class ChatsManager(metaclass=SingletonMeta):
 
     def get_all_chats(self) -> List[int]:
         """Returns list of IDs of all bot's chats"""
+        self.blog.debug('Getting list of all chats')
         resp = self.db.run_single_query('select * from chats')
         result = [i[1] for i in resp]
         return result
 
     def add_new_chat(self, id_: int) -> None:
         """Add new bot's chat id"""
+        self.blog.info(f'Adding new chat with id #{id_}')
         result = self.db.run_single_query('select * from chats where chat_id = %s', [id_])
         if len(result) == 0:
             self.db.run_single_update_query('insert into skarma.chats (chat_id) VALUES (%s)', [id_])
+        else:
+            self.blog.debug(f'Adding new chat with id #{id_} aborted: chat already exists')
 
 
 class AnnouncementsManager(metaclass=SingletonMeta):
@@ -54,19 +58,23 @@ class AnnouncementsManager(metaclass=SingletonMeta):
     db: DBUtils = DBUtils()
 
     def __init__(self):
+        self.blog.info('Creating AnnouncementsManager instance')
         self.db.setup_new_connection(1)
 
     def get_all_announcements(self) -> List[Tuple[int, str]]:
         """Returs list of tuples, that store announcements' IDs and messages"""
+        self.blog.debug(f'Getting list of all announcements')
 
         return self.db.run_single_query('select * from announcements', connection_id=1)
 
     def add_new_announcement(self, msg: str) -> None:
         """Add new announcement to database"""
+        self.blog.debug(f'Adding new announcement')
 
         self.db.run_single_update_query('insert into skarma.announcements (text) VALUES (%s)', [msg], connection_id=1)
 
     def delete_announcement(self, id_: int) -> None:
         """Delete announcement from database by its id"""
+        self.blog.debug(f'Removing announcement with id = {id_}')
 
         self.db.run_single_update_query('delete from announcements where id = %s', [id_], connection_id=1)

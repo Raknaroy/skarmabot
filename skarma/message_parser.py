@@ -44,6 +44,8 @@ class AnnouncementsThread(Thread):
     def __init__(self, bot: Bot):
         Thread.__init__(self)
 
+        self.blog.info('Creating new announcements thread instance')
+
         self.change_chats_if_needed()
         self.bot = bot
 
@@ -53,10 +55,14 @@ class AnnouncementsThread(Thread):
 
         Returns true if chats was reloaded and false if it five minutes hasn't passed since last reload.
         """
+        self.blog.info('Checking if its needed to update chats list')
         current_time = time.time()
-        if current_time - self.last_chats_change_time > 5*60:
+        time_change = current_time - self.last_chats_change_time
+        if time_change > 5*60:
+            self.blog.debug(f"It's been {time_change/60} minutes since last chats list update. Updating...")
             self.chats = ChatsManager().get_all_chats()
             return True
+        self.blog.debug("There is no need in updating chats list")
         return False
 
     def _try_send_message(self, chat_id: int, msg: str):
@@ -72,8 +78,10 @@ class AnnouncementsThread(Thread):
                 self.bot.send_message(chat_id=chat_id, text=msg)
                 succ = True
             except TimedOut:
-                pass
+                self.blog.warning('Timout while sending message (we will try one more time): ', exc_info=True)
             except RetryAfter as e:
+                self.blog.warning('Telegram send retry_after while sending message (we will try one more time): ',
+                                  exc_info=True)
                 time.sleep(e.retry_after)
 
             if succ:
@@ -87,9 +95,11 @@ class AnnouncementsThread(Thread):
             announcements = am.get_all_announcements()
 
             for id_, msg in announcements:
+                self.blog.info(f'Sending new announcement with id ${id_}')
                 for chat_id in self.chats:
-                    time.sleep(2)
+                    self.blog.debug(f'Sending new announcement with id ${id_} into chat with id #{chat_id}')
                     self._try_send_message(chat_id, msg)
+                    time.sleep(2)
                 am.delete_announcement(id_)
             time.sleep(10*60)
 
@@ -125,4 +135,5 @@ def message_handler(update, context):
 
 def group_join_handler(update, _):
     chat_id = update.effective_chat.id
+    logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
     ChatsManager().add_new_chat(chat_id)

@@ -88,4 +88,5 @@ def start(update, _):
     # TODO: help
 
     chat_id = update.effective_chat.id
+    logging.getLogger('botlog').info(f'User with id #{chat_id} will be added to database after running /start')
     ChatsManager().add_new_chat(chat_id)
