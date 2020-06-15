@@ -23,7 +23,6 @@ import logging
 
 from typing import List, Tuple
 
-from mysql.connector.errors import DatabaseError
 
 from skarma.utils.singleton import SingletonMeta
 from skarma.utils.db import DBUtils
