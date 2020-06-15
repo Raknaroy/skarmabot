@@ -27,6 +27,7 @@ from pprint import pformat
 import mysql.connector
 
 from mysql.connector import MySQLConnection
+from mysql.connector.errors import DatabaseError
 
 from skarma.db_info import DBInfo
 from skarma.utils.singleton import SingletonMeta
@@ -77,6 +78,11 @@ class DBUtils(metaclass=SingletonMeta):
         """
         self.blog.debug('Running single SELECT query: ' + operation + 'with params: ' + pformat(params))
 
+        if connection_id not in self._botdb:
+            msg = f"There's no connection with id #{connection_id}"
+            self.blog.error(msg)
+            raise DatabaseError(msg)
+
         cursor_ = self._botdb[connection_id].cursor()
         cursor_.execute(operation, params)
 
@@ -101,6 +107,11 @@ class DBUtils(metaclass=SingletonMeta):
         TODO: remove bad link
         """
         self.blog.debug('Running single NOT select query: ' + operation + 'with params: ' + pformat(params))
+
+        if connection_id not in self._botdb:
+            msg = f"There's no connection with id #{connection_id}"
+            self.blog.error(msg)
+            raise DatabaseError(msg)
 
         cursor_ = self._botdb[connection_id].cursor()
         cursor_.execute(operation, params)
