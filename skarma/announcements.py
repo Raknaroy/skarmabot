@@ -67,4 +67,4 @@ class AnnouncementsManager(metaclass=SingletonMeta):
     def delete_announcement(self, id_: int) -> None:
         """Delete announcement from database by its id"""
 
-        self.db.run_single_query('delete from announcements where id = %s', [id_])
+        self.db.run_single_update_query('delete from announcements where id = %s', [id_])
