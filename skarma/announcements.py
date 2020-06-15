@@ -60,7 +60,7 @@ class AnnouncementsManager(metaclass=SingletonMeta):
         return self.db.run_single_query('select * from announcements')
 
     def add_new_announcement(self, msg: str) -> None:
-        """Add new annoucement to database"""
+        """Add new announcement to database"""
 
         self.db.run_single_update_query('insert into skarma.announcements (text) VALUES (%s)', [msg])
 
