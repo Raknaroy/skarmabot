@@ -53,17 +53,20 @@ class AnnouncementsManager(metaclass=SingletonMeta):
     blog = logging.getLogger('botlog')
     db: DBUtils = DBUtils()
 
+    def __init__(self):
+        self.db.setup_new_connection(1)
+
     def get_all_announcements(self) -> List[Tuple[int, str]]:
         """Returs list of tuples, that store announcements' IDs and messages"""
 
-        return self.db.run_single_query('select * from announcements')
+        return self.db.run_single_query('select * from announcements', connection_id=1)
 
     def add_new_announcement(self, msg: str) -> None:
         """Add new announcement to database"""
 
-        self.db.run_single_update_query('insert into skarma.announcements (text) VALUES (%s)', [msg])
+        self.db.run_single_update_query('insert into skarma.announcements (text) VALUES (%s)', [msg], connection_id=1)
 
     def delete_announcement(self, id_: int) -> None:
         """Delete announcement from database by its id"""
 
-        self.db.run_single_update_query('delete from announcements where id = %s', [id_])
+        self.db.run_single_update_query('delete from announcements where id = %s', [id_], connection_id=1)
