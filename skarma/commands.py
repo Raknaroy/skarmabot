@@ -130,6 +130,26 @@ def antitop(update, context):
     context.bot.send_message(chat_id=chat_id, text=message)
 
 
+admins = [253927284]
+
+
+@catch_error
+def gen_error(update, context):
+    """Generate sample error for debugging"""
+
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+    logging.getLogger('botlog').info(f'Generating sample error! Asked by user #{user_id} in chat #{chat_id}')
+
+    if user_id in admins:
+        ErrorManager().report_error('Test error', 'This sample error was generated for debugging '
+                                                  'by user #{user_id} in chat #{chat_id}')
+        context.bot.send_message(chat_id=chat_id, text='Sample error successfully generated')
+    else:
+        logging.getLogger('botlog').debug('Error could bot be generated: access denied. Check admins list')
+        context.bot.send_message(chat_id=chat_id, text='Только администратор может сгенерировать тестовую ошибку')
+
+
 @catch_error
 def start(update, _):
     """Save user's chat id"""

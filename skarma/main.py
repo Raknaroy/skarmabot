@@ -179,6 +179,10 @@ if __name__ == "__main__":
     dispatcher.add_handler(antitop_handler)
     blog.info('Added handler for /antitop command')
 
+    gen_error_handler = CommandHandler('gen_error', commands.gen_error)
+    dispatcher.add_handler(gen_error_handler)
+    blog.info('Added handler for /gen_error command')
+
     message_handler = MessageHandler(Filters.reply & Filters.group & Filters.text & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')
