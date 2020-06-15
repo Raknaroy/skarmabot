@@ -25,9 +25,10 @@ import logging
 from threading import Thread
 
 from telegram import Bot
-from telegram.error import TimedOut, RetryAfter
+from telegram.error import TimedOut, RetryAfter, Unauthorized
 
 from skarma.karma import KarmaManager
+from skarma.utils.errorm import ErrorManager
 from skarma.announcements import ChatsManager, AnnouncementsManager
 
 
@@ -83,6 +84,12 @@ class AnnouncementsThread(Thread):
                 self.blog.warning('Telegram send retry_after while sending message (we will try one more time): ',
                                   exc_info=True)
                 time.sleep(e.retry_after)
+            except Unauthorized:
+                self.blog.info(f'Bot was blocked by user with id #{chat_id}')
+                ChatsManager().remove_chat(chat_id)
+            except Exception as e:
+                self.blog.error(e)
+                ErrorManager().report_exception(e)
 
             if succ:
                 break

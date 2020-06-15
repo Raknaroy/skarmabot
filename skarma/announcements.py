@@ -50,6 +50,11 @@ class ChatsManager(metaclass=SingletonMeta):
         else:
             self.blog.debug(f'Adding new chat with id #{id_} aborted: chat already exists')
 
+    def remove_chat(self, chat_id: int) -> None:
+        """Remove chat from database. Can be used even if this chat is already deleted"""
+        self.blog.info(f'Removing from database chat with id #{chat_id}')
+        self.db.run_single_update_query('delete from skarma.chats where chat_id = %s', [chat_id])
+
 
 class AnnouncementsManager(metaclass=SingletonMeta):
     """Add or get announcements from database"""
