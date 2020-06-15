@@ -63,3 +63,8 @@ class AnnouncementsManager(metaclass=SingletonMeta):
         """Add new annoucement to database"""
 
         self.db.run_single_update_query('insert into skarma.announcements (text) VALUES (%s)', [msg])
+
+    def delete_announcement(self, id_: int) -> None:
+        """Delete announcement from database by its id"""
+
+        self.db.run_single_query('delete from announcements where id = %s', [id_])
