@@ -21,7 +21,7 @@
 
 import logging
 
-from typing import List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any
 from pprint import pformat
 
 import mysql.connector
@@ -36,16 +36,19 @@ class DBUtils(metaclass=SingletonMeta):
 
     blog = logging.getLogger('botlog')
 
-    _botdb: Optional[MySQLConnection] = None
+    _botdb: Dict[int, MySQLConnection] = {}
 
     def __init__(self) -> None:
         """
-        Init global botdb variable with new MySql connection.
+        Init global botdb variable with new MySql connection at id 0.
         """
-        self.blog.info('Initializing database managing connection')
+        self.setup_new_connection()
+
+    def setup_new_connection(self, connection_id: int = 0):
+        self.blog.info(f'Initializing database managing connection with id {connection_id}')
         dbi = DBInfo()
 
-        self._botdb = mysql.connector.connect(
+        self._botdb[connection_id] = mysql.connector.connect(
             host=dbi.host,
             port=dbi.port,
             user=dbi.user,
@@ -53,13 +56,13 @@ class DBUtils(metaclass=SingletonMeta):
             database=dbi.database
         )
 
-        self.blog.info(f'Connected to database on {dbi.user}@{dbi.host}:{dbi.port} successfully')
+        self.blog.info(f'Connected to database on {dbi.user}@{dbi.host}:{dbi.port} with id = {connection_id} successfully')
 
         self.run_single_update_query('SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED')
 
-        self.blog.debug('Set MySql session transaction isolation level to READ UNCOMMITTED')
+        self.blog.debug(f'Set MySql session (id = {connection_id})  transaction isolation level to READ UNCOMMITTED')
 
-    def run_single_query(self, operation: str, params=()) -> List[Tuple[Any]]:
+    def run_single_query(self, operation: str, params=(), connection_id: int = 0) -> List[Tuple[Any]]:
         """
         Run SELECT query to db that don't update DB. Use run_single_update_query
         if your query updated DB.
@@ -70,10 +73,11 @@ class DBUtils(metaclass=SingletonMeta):
         Consider using 'params' argument instead of others string building methods
         to avoid SQL injections. You can report SQL injections problems found in
         the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
+        TODO: remove bad link
         """
         self.blog.debug('Running single SELECT query: ' + operation + 'with params: ' + pformat(params))
 
-        cursor_ = self._botdb.cursor()
+        cursor_ = self._botdb[connection_id].cursor()
         cursor_.execute(operation, params)
 
         res_ = cursor_.fetchall()
@@ -83,7 +87,7 @@ class DBUtils(metaclass=SingletonMeta):
         cursor_.close()
         return res_
 
-    def run_single_update_query(self, operation: str, params=()) -> None:
+    def run_single_update_query(self, operation: str, params=(), connection_id: int = 0) -> None:
         """
         Run query to db that do update DB. Use run_single_query instead
         if you are doing SELECT query .
@@ -94,15 +98,16 @@ class DBUtils(metaclass=SingletonMeta):
         Consider using 'params' argument instead of others string building methods
         to avoid SQL injections. You can report SQL injections problems found in
         the project at https://github.com/sandsbit/skarmabot/security/advisories/new.
+        TODO: remove bad link
         """
         self.blog.debug('Running single NOT select query: ' + operation + 'with params: ' + pformat(params))
 
-        cursor_ = self._botdb.cursor()
+        cursor_ = self._botdb[connection_id].cursor()
         cursor_.execute(operation, params)
 
-        self._botdb.commit()
+        self._botdb[connection_id].commit()
         cursor_.close()
 
-    def is_connected(self) -> bool:
-        return self._botdb.is_connected()
+    def is_connected(self, connection_id: int = 0) -> bool:
+        return self._botdb[connection_id].is_connected()
 
