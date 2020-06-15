@@ -103,8 +103,8 @@ def top(update, context):
         try:
             user_name = UsernamesManager().get_username_by_id(user_id)
         except NoSuchUser:
-            user_name = f'Unnamed user ({user_id})\n'
-        message += f'{user_name} - {karma}'
+            user_name = f'Unnamed user ({user_id})'
+        message += f'{user_name} - {karma}\n'
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
@@ -124,8 +124,8 @@ def antitop(update, context):
         try:
             user_name = UsernamesManager().get_username_by_id(user_id)
         except NoSuchUser:
-            user_name = f'Unnamed user ({user_id})\n'
-        message += f'{user_name} - {karma}'
+            user_name = f'Unnamed user ({user_id})'
+        message += f'{user_name} - {karma}\n'
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
