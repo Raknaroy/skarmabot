@@ -62,7 +62,7 @@ class AnnouncementsManager(metaclass=SingletonMeta):
         self.db.setup_new_connection(1)
 
     def get_all_announcements(self) -> List[Tuple[int, str]]:
-        """Returs list of tuples, that store announcements' IDs and messages"""
+        """Returns list of tuples, that store announcements' IDs and messages"""
         self.blog.debug(f'Getting list of all announcements')
 
         return self.db.run_single_query('select * from announcements', connection_id=1)
