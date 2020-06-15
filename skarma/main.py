@@ -50,7 +50,8 @@ def setup_logging_ui() -> None:
               f'Logging will be turned off.')
         return
 
-    formatter = logging.Formatter('%(asctime)s - %(process)d - %(levelname)s - %(module)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(process)d - %(threadName)s (%(thread)d) '
+                                  '- %(levelname)s - %(module)s - %(message)s')
 
     tglogger = logging.getLogger("telegram.bot")
     tglogger.setLevel(logging.DEBUG)
