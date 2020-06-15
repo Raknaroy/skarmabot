@@ -92,7 +92,7 @@ def my_karma(update, context):
 def top(update, context):
     """Print top 5 of chat"""
 
-    chat_id = update.effective_user.id
+    chat_id = update.effective_chat.id
 
     logging.getLogger('botlog').info(f'Printing TOP-5 user in chat #{chat_id}')
 
@@ -113,7 +113,7 @@ def top(update, context):
 def antitop(update, context):
     """Print anti-top 5 of chat"""
 
-    chat_id = update.effective_user.id
+    chat_id = update.effective_chat.id
 
     logging.getLogger('botlog').info(f'Printing TOP-5 user in chat #{chat_id}')
 
