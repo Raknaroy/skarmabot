@@ -21,7 +21,7 @@
 
 import logging
 
-from typing import List
+from typing import List, Tuple
 
 from mysql.connector.errors import DatabaseError
 
@@ -46,3 +46,20 @@ class ChatsManager(metaclass=SingletonMeta):
         result = self.db.run_single_query('select * from chats where chat_id = %s', [id_])
         if len(result) == 0:
             self.db.run_single_update_query('insert into skarma.chats (chat_id) VALUES (%s)', [id_])
+
+
+class AnnouncementsManager(metaclass=SingletonMeta):
+    """Add or get announcements from database"""
+
+    blog = logging.getLogger('botlog')
+    db: DBUtils = DBUtils()
+
+    def get_all_announcements(self) -> List[Tuple[int, str]]:
+        """Returs list of tuples, that store announcements' IDs and messages"""
+
+        return self.db.run_single_query('select * from announcements')
+
+    def add_new_announcement(self, msg: str) -> None:
+        """Add new annoucement to database"""
+
+        self.db.run_single_update_query('insert into skarma.announcements (text) VALUES (%s)', [msg])
