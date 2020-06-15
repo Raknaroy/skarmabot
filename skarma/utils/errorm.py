@@ -47,6 +47,8 @@ class ErrorManager(metaclass=SingletonMeta):
 
     report_by_email = True
 
+    reported_email_problem = False
+
     def get_all_errors(self) -> List[Tuple[int, str, str]]:
         """Get list of all reported errors from DB"""
 
@@ -62,6 +64,9 @@ class ErrorManager(metaclass=SingletonMeta):
                 self._report_via_email(name, stacktrace)
             except Exception as e:
                 self.blog.exception(e)
+                if not self.reported_email_problem:
+                    self.report_exception(e)
+                    reported_email_problem = True
 
     def report_exception(self, e: Exception) -> None:
         """Report new error to DB"""
@@ -72,7 +77,9 @@ class ErrorManager(metaclass=SingletonMeta):
         res_ = self._dbu.run_single_query("select count(*) from errors")
 
         if len(res_) != 1 or (len(res_[0]) != 1) or type(res_[0][0]) is not int:
-            raise DatabaseError('Invalid response from DB (getting number of errors): ' + pprint.pformat(res_))
+            msg = 'Invalid response from DB (getting number of errors): ' + pprint.pformat(res_)
+            self.blog.error(msg)
+            raise DatabaseError(msg)
 
         return res_[0][0]
 
