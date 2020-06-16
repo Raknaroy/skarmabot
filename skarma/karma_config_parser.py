@@ -39,6 +39,8 @@ class ConfigParseError(Exception):
 class KarmaRange:
     """Karma range structure"""
 
+    name: str
+
     min_range: float
     max_range: float
 
@@ -89,13 +91,14 @@ class KarmaRange:
 
         try:
             obj = cls(
-                min_range = cls._read_int_or_inf(parsed['range_min']),
-                max_range = cls._read_int_or_inf(parsed['range_max']),
-                enable_plus = parsed.getboolean('enable_plus'),
-                enable_minus = parsed.getboolean('enable_minus'),
-                plus_value = parsed.getint('plus_value'),
-                minus_value = parsed.getint('minus_value'),
-                day_max = cls._read_int_or_inf(parsed['day_max']),
+                name=parsed['name'],
+                min_range=cls._read_int_or_inf(parsed['range_min']),
+                max_range=cls._read_int_or_inf(parsed['range_max']),
+                enable_plus=parsed.getboolean('enable_plus'),
+                enable_minus=parsed.getboolean('enable_minus'),
+                plus_value=parsed.getint('plus_value'),
+                minus_value=parsed.getint('minus_value'),
+                day_max=cls._read_int_or_inf(parsed['day_max']),
                 timeout=timeout
             )
         except KeyError as e:
