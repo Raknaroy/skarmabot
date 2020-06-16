@@ -132,7 +132,40 @@ class StatsManager(metaclass=SingletonMeta):
 
     def handle_user_change_karma(self, chat_id: int, user_id: int) -> None:
         """Update information in database after user change someone's karma"""
-        pass
+        self.blog.info(f'Updating information in stats table for user #{user_id} in chat #{chat_id}')
+
+        row_id_query = self.db.run_single_query('select id from stats where chat_id = %s and user_id = %s',
+                                                (chat_id, user_id))
+
+        if len(row_id_query) > 1:
+            msg = f'Invalid database response for getting stats for user #{user_id} in chat #{chat_id}'
+            self.blog.error(msg)
+            raise DatabaseError(msg)
+
+        if len(row_id_query) == 0:
+            self.blog.debug(f'No stats saves for user #{user_id} in chat #{chat_id}')
+            self.db.run_single_update_query('insert into stats(chat_id, user_id, last_karma_change, today, '
+                                            'today_karma_changes) values (%s, %s, '
+                                            'UTC_TIMESTAMP(), UTC_DATE(), 1)', (chat_id, user_id))
+        else:
+            row_id = row_id_query[0][0]
+
+            user_date = self.db.run_single_query('select today from stats where id = %s', [row_id])
+
+            if len(user_date) > 1:
+                msg = f'Invalid database response for getting today date for user #{user_id} in chat #{chat_id}'
+                self.blog.error(msg)
+                raise DatabaseError(msg)
+
+            user_date = user_date[0][0]
+
+            if datetime.datetime.utcnow().date() == user_date:
+                self.db.run_single_update_query('update stats set today_karma_changes = today_karma_changes + 1, '
+                                                'last_karma_change = UTC_TIMESTAMP where id = %s', [row_id])
+            else:
+                self.blog.debug(f'Updating date for user #{user_id} in chat #{chat_id}')
+                self.db.run_single_update_query('update stats set today = UTC_DATE, today_karma_changes = 1, '
+                                                'last_karma_change = UTC_TIMESTAMP where id = %s', [row_id])
 
     def get_karma_changes_today(self, chat_id: int, user_id: int) -> int:
         """Return how many times user changed someone's karma in this chat"""
