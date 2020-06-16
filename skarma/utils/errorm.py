@@ -30,7 +30,7 @@ from mysql.connector.errors import DatabaseError
 
 from skarma.utils.singleton import SingletonMeta
 from skarma.utils.db import DBUtils
-from skarma.utils import email
+from skarma.utils import email_utils
 from skarma.email_info import EmailInfo
 
 
@@ -86,7 +86,7 @@ class ErrorManager(metaclass=SingletonMeta):
     @staticmethod
     def _report_via_email(name: str, stacktrace: str) -> None:
         """Send error report to email. See email.conf for more information"""
-        email.send_email(EmailInfo().user_to, 'Error in SKarma: ' + name, stacktrace)  # TODO: Replce name
+        email_utils.send_email(EmailInfo().user_to, 'Error in SKarma: ' + name, stacktrace)  # TODO: Replce name
 
 
 def catch_error(f):
