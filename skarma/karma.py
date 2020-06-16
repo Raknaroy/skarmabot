@@ -66,78 +66,6 @@ class UsernamesManager:
                                         'on duplicate key update name = %(name)s', {'id': id_, 'name': name})
 
 
-class KarmaManager(metaclass=SingletonMeta):
-    """Api to work with karma table in database"""
-
-    blog = logging.getLogger('botlog')
-    db: DBUtils = DBUtils()
-
-    def get_user_karma(self, chat_id: int, user_id: int) -> int:
-        self.blog.debug(f'Getting karma of user #{user_id} in chat #{chat_id}')
-        result = self.db.run_single_query('select karma from karma where chat_id = %s and user_id = %s',
-                                          (chat_id, user_id))
-        if len(result) == 0:
-            return 0
-
-        if (len(result) != 1) or (len(result[0]) != 1):
-            msg = 'Invalid database response for getting user karma: ' + pformat(result)
-            self.blog.error('Invalid database response for getting user karma: ' + pformat(result))
-            raise DatabaseError(msg)
-
-        return result[0][0]
-
-    def set_user_karma(self, chat_id: int, user_id: int) -> None:  # TODO
-        pass
-
-    def clean_user_karma(self, chat_id: int, user_id: int) -> None:
-        pass
-
-    def clean_chat_karma(self, chat_id: int) -> None:
-        pass
-
-    def change_user_karma(self, chat_id: int, user_id: int, change: int) -> None:
-        self.blog.debug(f'Changing karma of user #{user_id} in chat #{chat_id}. change = {change}')
-
-        result = self.db.run_single_query('select * from karma where chat_id = %s and user_id = %s', (chat_id, user_id))
-        if len(result) == 0:
-            self.db.run_single_update_query('insert into skarma.karma (chat_id, user_id, karma) VALUES (%s, %s, %s)',
-                                            (chat_id, user_id, change))
-        else:
-            self.db.run_single_update_query('update karma set karma = karma + %s where chat_id = %s and user_id = %s',
-                                        (change, chat_id, user_id))
-
-    def increase_user_karma(self, chat_id: int, user_id: int, up_change: int) -> None:
-        self.change_user_karma(chat_id, user_id, up_change)
-
-    def decrease_user_karma(self, chat_id: int, user_id: int, down_change: int) -> None:
-        self.change_user_karma(chat_id, user_id, -down_change)
-
-    def get_ordered_karma_top(self, chat_id: int, amount: int = 5, biggest: bool = True) -> List[Tuple[int, int]]:
-        """
-        Get ordered *amount* people from chat with biggedt (biggest = True) or smallest (biggest = False) karma.
-        Returns list with tuples, which contain users' IDs and karma
-        """
-        self.blog.debug(f'Getting chat #{chat_id} TOP. amount = {amount}, biggest = {biggest}')
-
-        order = 'desc' if biggest else 'asc'
-        symbol = '>'if biggest else '<'
-        return self.db.run_single_query(f'select distinct user_id, karma from karma where chat_id = %s and karma {symbol} 0 '
-                                 f'order by karma {order} limit %s',
-                                 [chat_id, amount])
-
-    class CHECK(Enum):
-        OK = 0  # user can change karma
-        TIMEOUT = 1  # user change karma too often
-        CHANGE_DENIED = 2  # user can't raise or lower karma
-        DAY_MAX_EXCEED = 3  # day karma change limit exceed
-
-    def check_could_user_change_karma(self, chat_id: int, user_id: int, raise_: bool) -> Tuple[CHECK, int]:
-        """Check if user can change karma and return tuple with CHECK enum code with error number
-        and karma change size"""
-
-        return self.CHECK.OK, 1
-
-
 class StatsManager(metaclass=SingletonMeta):
     """Api to work with stats table in database"""
 
@@ -218,3 +146,90 @@ class StatsManager(metaclass=SingletonMeta):
             msg = f'Invalid database response for last karma changed time for user #{user_id} in chat #{chat_id}'
             self.blog.error(msg)
             raise DatabaseError(msg)
+
+
+class KarmaManager(metaclass=SingletonMeta):
+    """Api to work with karma table in database"""
+
+    blog = logging.getLogger('botlog')
+    db: DBUtils = DBUtils()
+
+    def get_user_karma(self, chat_id: int, user_id: int) -> int:
+        self.blog.debug(f'Getting karma of user #{user_id} in chat #{chat_id}')
+        result = self.db.run_single_query('select karma from karma where chat_id = %s and user_id = %s',
+                                          (chat_id, user_id))
+        if len(result) == 0:
+            return 0
+
+        if (len(result) != 1) or (len(result[0]) != 1):
+            msg = 'Invalid database response for getting user karma: ' + pformat(result)
+            self.blog.error('Invalid database response for getting user karma: ' + pformat(result))
+            raise DatabaseError(msg)
+
+        return result[0][0]
+
+    def set_user_karma(self, chat_id: int, user_id: int) -> None:  # TODO
+        pass
+
+    def clean_user_karma(self, chat_id: int, user_id: int) -> None:
+        pass
+
+    def clean_chat_karma(self, chat_id: int) -> None:
+        pass
+
+    def change_user_karma(self, chat_id: int, user_id: int, change: int) -> None:
+        self.blog.debug(f'Changing karma of user #{user_id} in chat #{chat_id}. change = {change}')
+
+        result = self.db.run_single_query('select * from karma where chat_id = %s and user_id = %s', (chat_id, user_id))
+        if len(result) == 0:
+            self.db.run_single_update_query('insert into skarma.karma (chat_id, user_id, karma) VALUES (%s, %s, %s)',
+                                            (chat_id, user_id, change))
+        else:
+            self.db.run_single_update_query('update karma set karma = karma + %s where chat_id = %s and user_id = %s',
+                                        (change, chat_id, user_id))
+
+    def increase_user_karma(self, chat_id: int, user_id: int, up_change: int) -> None:
+        self.change_user_karma(chat_id, user_id, up_change)
+
+    def decrease_user_karma(self, chat_id: int, user_id: int, down_change: int) -> None:
+        self.change_user_karma(chat_id, user_id, -down_change)
+
+    def get_ordered_karma_top(self, chat_id: int, amount: int = 5, biggest: bool = True) -> List[Tuple[int, int]]:
+        """
+        Get ordered *amount* people from chat with biggedt (biggest = True) or smallest (biggest = False) karma.
+        Returns list with tuples, which contain users' IDs and karma
+        """
+        self.blog.debug(f'Getting chat #{chat_id} TOP. amount = {amount}, biggest = {biggest}')
+
+        order = 'desc' if biggest else 'asc'
+        symbol = '>'if biggest else '<'
+        return self.db.run_single_query(f'select distinct user_id, karma from karma where chat_id = %s and karma {symbol} 0 '
+                                 f'order by karma {order} limit %s',
+                                 [chat_id, amount])
+
+    class CHECK(Enum):
+        OK = 0  # user can change karma
+        TIMEOUT = 1  # user change karma too often
+        CHANGE_DENIED = 2  # user can't raise or lower karma
+        DAY_MAX_EXCEED = 3  # day karma change limit exceed
+
+    def check_could_user_change_karma(self, chat_id: int, user_id: int, raise_: bool) -> Tuple[CHECK, int]:
+        """Check if user can change karma and return tuple with CHECK enum code with error number
+        and karma change size"""
+
+        karma = self.get_user_karma(chat_id, user_id)
+        kr = KarmaRangesManager().get_range_by_karma(karma)
+        sm = StatsManager()
+
+        time_since_last_karma_change = sm.get_last_karma_change_time(chat_id, user_id) - datetime.datetime.utcnow()
+        if time_since_last_karma_change > kr.timeout:
+            return self.CHECK.TIMEOUT, 0
+        if (raise_ and not kr.enable_plus) or (not raise_ and not kr.enable_minus):
+            return self.CHECK.CHANGE_DENIED, 0
+        if sm.get_karma_changes_today(chat_id, user_id) >= kr.day_max:
+            return self.CHECK.DAY_MAX_EXCEED, 0
+
+        if raise_:
+            return self.CHECK.OK, kr.plus_value
+        else:
+            return self.CHECK.OK, kr.plus_value

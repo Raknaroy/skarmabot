@@ -142,9 +142,19 @@ def message_handler(update, context):
 
         if change_code == KarmaManager.CHECK.OK:
             StatsManager().handle_user_change_karma(chat_id, from_user_id)
+
+            if text.startswith('+'):
+                km.increase_user_karma(chat_id, user_id, change_value)
+                context.bot.send_message(chat_id=update.effective_chat.id,
+                                         text=f'+{change_value} к карме {user_name}\n'
+                                              f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
+            else:
+                km.decrease_user_karma(chat_id, user_id, change_value)
+                context.bot.send_message(chat_id=update.effective_chat.id,
+                                         text=f'-{change_value} к карме {user_name}\n'
+                                              f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
         elif change_code == KarmaManager.CHECK.TIMEOUT:
             context.bot.send_message(chat_id=chat_id, text='Вы увеличиваете карму слишком часто, подождите немного')
-            return
         elif change_code == KarmaManager.CHECK.CHANGE_DENIED:
             if text.startswith('+'):
                 context.bot.send_message(chat_id=chat_id, text='Вы не имеете право увеличивать карму')
@@ -152,17 +162,6 @@ def message_handler(update, context):
                 context.bot.send_message(chat_id=chat_id, text='Вы не имеете право уменьшать карму')
         elif change_code == KarmaManager.CHECK.DAY_MAX_EXCEED:
             context.bot.send_message(chat_id=chat_id, text='Вы исчерпали дневной лимит на изменения кармы')
-
-    if text.startswith('+'):
-        km.increase_user_karma(chat_id, user_id, 1)
-        context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f'+1 к карме {user_name}\n'
-                                      f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
-    elif text.startswith('-'):
-        km.decrease_user_karma(chat_id, user_id, 1)
-        context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f'-1 к карме {user_name}\n'
-                                      f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
 
 
 @catch_error
