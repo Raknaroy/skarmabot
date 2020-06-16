@@ -28,6 +28,8 @@ from os import path
 from typing import List, Optional
 from dataclasses import dataclass
 
+from skarma.utils.singleton import SingletonMeta
+
 
 class ConfigParseError(Exception):
     pass
@@ -103,7 +105,7 @@ class KarmaRange:
         return obj
 
 
-class KarmaRangesManager:
+class KarmaRangesManager(metaclass=SingletonMeta):
     """Checks user's karma range. Karma ranges are loaded from karma.conf"""
 
     blog = logging.getLogger('botlog')
