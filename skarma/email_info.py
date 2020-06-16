@@ -24,8 +24,10 @@ import logging
 from os import path
 from configparser import ConfigParser
 
+from skarma.utils.singleton import SingletonMeta
 
-class EmailInfo:
+
+class EmailInfo(metaclass=SingletonMeta):
     """Parse information from db.conf"""
 
     blog = logging.getLogger('botlog')
