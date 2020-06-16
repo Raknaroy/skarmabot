@@ -25,7 +25,7 @@ import logging
 from math import inf
 from configparser import ConfigParser, SectionProxy
 from os import path
-from typing import List, Optional
+from typing import List
 from dataclasses import dataclass
 
 from skarma.utils.singleton import SingletonMeta
