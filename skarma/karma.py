@@ -22,7 +22,7 @@
 import logging
 import datetime
 
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from pprint import pformat
 
 from mysql.connector.errors import DatabaseError
@@ -169,8 +169,38 @@ class StatsManager(metaclass=SingletonMeta):
 
     def get_karma_changes_today(self, chat_id: int, user_id: int) -> int:
         """Return how many times user changed someone's karma in this chat"""
-        pass
+        self.blog.info(f'Getting karma changes count for user #{user_id} in chat {chat_id}')
 
-    def get_last_karma_change_time(self, chat_id: int, user_id: int) -> datetime.datetime:
-        """Get date and time when user last changed someone's karma in this chat"""
-        pass
+        query_result = self.db.run_single_query('select today, today_karma_changes from stats '
+                                                'where chat_id = %s and user_id = %s', [chat_id, user_id])
+
+        if len(query_result) == 0:
+            self.blog.debug(f'No stats saves for user #{user_id} in chat #{chat_id}')
+            return 0
+        elif len(query_result) == 1:
+            today, count = query_result[0]
+            if datetime.datetime.utcnow().date() == today:
+                return count
+            else:
+                return 0
+        else:
+            msg = f'Invalid database response for getting karma changes count for user #{user_id} in chat #{chat_id}'
+            self.blog.error(msg)
+            raise DatabaseError(msg)
+
+    def get_last_karma_change_time(self, chat_id: int, user_id: int) -> Optional[datetime.datetime]:
+        """Get date and time when user last changed someone's karma in this chat. Returns None if no data stored"""
+        self.blog.info(f'Getting last karma change time for user #{user_id} in chat {chat_id}')
+
+        query_result = self.db.run_single_query('select last_karma_change from stats '
+                                                'where chat_id = %s and user_id = %s', [chat_id, user_id])
+
+        if len(query_result) == 0:
+            self.blog.debug(f'No stats saves for user #{user_id} in chat #{chat_id}')
+            return None
+        elif len(query_result) == 1:
+            return query_result[0][0]
+        else:
+            msg = f'Invalid database response for last karma changed time for user #{user_id} in chat #{chat_id}'
+            self.blog.error(msg)
+            raise DatabaseError(msg)
