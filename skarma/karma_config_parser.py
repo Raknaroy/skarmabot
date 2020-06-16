@@ -25,6 +25,10 @@ from math import inf
 from dataclasses import dataclass
 
 
+class ConfigParseError(Exception):
+    pass
+
+
 @dataclass
 class KarmaRange:
     """Karma range structure"""
