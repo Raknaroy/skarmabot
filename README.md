@@ -4,7 +4,7 @@ Yet another karma bot for telegram groups.
 ## Access bot
 Bot isn't hosted yet, but it will be accessible on @skarmabot soon.
 ## Download latest version
-You can download SKarma 0.1.0-beta.2 source [here](https://github.com/sandsbit/skarmabot/releases/tag/v0.1.0-beta.2)
+You can download SKarma 0.1.0-beta.3 source [here](https://github.com/sandsbit/skarmabot/releases/tag/v0.1.0-beta.3)
 ## Features
 * Karma :)
 * Karma levels, each have own name and rights

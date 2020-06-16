@@ -170,7 +170,7 @@ def level(update, context):
     if kr.enable_minus:
         message += f'Вы можете отнимать -{kr.minus_value} едениц(ы/у) кармы\n'
     else:
-        message += f'Вы не можете прибавлять карму :(\n'
+        message += f'Вы не можете отнимать карму :(\n'
 
     message += f'Вы можете изменять карму {kr.day_max} раз в день'
 
