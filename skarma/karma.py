@@ -66,6 +66,30 @@ class UsernamesManager:
                                         'on duplicate key update name = %(name)s', {'id': id_, 'name': name})
 
 
+class MessagesManager(metaclass=SingletonMeta):
+    """Api to work with messages table in database"""
+
+    blog = logging.getLogger('botlog')
+    db: DBUtils = DBUtils()
+
+    def is_user_changed_karma_on_message(self, chat_id: int, user_id: int, message_id: int):
+        """Checks that user already have changed karma due to given message"""
+        self.blog.debug(f'Checking if message in messages table for message #{message_id} in chat #{chat_id} '
+                        f'for user {user_id}')
+
+        return len(self.db.run_single_query('select id from messages '
+                                            'where user_id = %s and chat_id = %s and message_id = %s',
+                                            (user_id, chat_id, message_id))) != 0
+
+    def mark_message_as_used(self, chat_id: int, user_id: int, message_id: int):
+        """Mark that user already have changed karma due to given message"""
+        self.blog.debug(f'Adding message to messages table; message #{message_id} in chat #{chat_id} '
+                        f'for user {user_id}')
+
+        self.db.run_single_update_query('insert into messages (message_id, chat_id, user_id) values (%s, %s, %s)',
+                                        (message_id, chat_id, user_id))
+
+
 class StatsManager(metaclass=SingletonMeta):
     """Api to work with stats table in database"""
 
