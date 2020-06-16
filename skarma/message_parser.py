@@ -118,7 +118,6 @@ def message_handler(update, context):
     """Parse message that change someone's karma"""
 
     km: KarmaManager = KarmaManager()
-    sm: StatsManager = StatsManager()
     chat_id = update.effective_chat.id
     from_user_id = update.effective_user.id
     user_id = update.message.reply_to_message.from_user.id
@@ -131,7 +130,7 @@ def message_handler(update, context):
         unm = UsernamesManager()
         unm.set_username(user_id, user_name)
 
-        sm.handle_user_change_karma(chat_id, from_user_id)
+        StatsManager().handle_user_change_karma(chat_id, from_user_id)
 
         if from_user_id == user_id:
             context.bot.send_message(chat_id=update.effective_chat.id, text=f'Хитрюга!')
