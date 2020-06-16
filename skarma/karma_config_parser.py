@@ -47,7 +47,7 @@ class KarmaRange:
     minus_value: int
 
     day_max: float
-    timeout = datetime.timedelta
+    timeout: datetime.timedelta
 
     def karma_in_range(self, karma: float) -> bool:
         """Check if user with given karma fits that karma range"""
@@ -69,32 +69,38 @@ class KarmaRange:
         blog = logging.getLogger('botlog')
         blog.info(f'Parsing section {parsed.name}')
 
+        timeout_v = int(parsed['timeout'][:-1])
+        timeout_s = parsed['timeout'][-1]
+
+        if timeout_s == 's':
+            timeout = datetime.timedelta(seconds=timeout_v)
+        elif timeout_s == 'm':
+            timeout = datetime.timedelta(minutes=timeout_v)
+        elif timeout_s == 'h':
+            timeout = datetime.timedelta(hours=timeout_v)
+        elif timeout_s == 'd':
+            timeout = datetime.timedelta(days=timeout_v)
+        elif timeout_s == 'w':
+            timeout = datetime.timedelta(weeks=timeout_v)
+        else:
+            raise ConfigParseError('Invalid timeout symbol: ' + timeout_s)
+
         try:
-            cls.min_range = cls._read_int_or_inf(parsed['min_range']),
-            cls.max_range = cls._read_int_or_inf(parsed['max_range']),
-            cls.enable_plus = parsed.getboolean('enable_plus'),
-            cls.enable_minus = parsed.getboolean('enable_minus'),
-            cls.plus_value = parsed.getint('plus_value'),
-            cls.minus_value = parsed.getint('minus_value'),
-            cls.day_max = cls._read_int_or_inf(parsed['day_max']),
-
-            timeout_v = int(parsed['timeout'][:-1])
-            timeout_s = parsed['timeout'][-1]
-
-            if timeout_s == 's':
-                cls.timeout = datetime.timedelta(seconds=timeout_v)
-            elif timeout_s == 'm':
-                cls.timeout = datetime.timedelta(minutes=timeout_v)
-            elif timeout_s == 'h':
-                cls.timeout = datetime.timedelta(hours=timeout_v)
-            elif timeout_s == 'd':
-                cls.timeout = datetime.timedelta(days=timeout_v)
-            elif timeout_s == 'w':
-                cls.timeout = datetime.timedelta(weeks=timeout_v)
+            obj = cls(
+                min_range = cls._read_int_or_inf(parsed['range_min']),
+                max_range = cls._read_int_or_inf(parsed['range_max']),
+                enable_plus = parsed.getboolean('enable_plus'),
+                enable_minus = parsed.getboolean('enable_minus'),
+                plus_value = parsed.getint('plus_value'),
+                minus_value = parsed.getint('minus_value'),
+                day_max = cls._read_int_or_inf(parsed['day_max']),
+                timeout=timeout
+            )
         except KeyError as e:
             msg = f'Value of {str(e)} not found for section {parsed.name}'
             blog.fatal(msg)
             raise ConfigParseError(msg)
+        return obj
 
 
 class KarmaRangesManager:
@@ -105,7 +111,7 @@ class KarmaRangesManager:
     KARMA_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/karma.conf')
 
     default_range: KarmaRange
-    ranges: List[KarmaRange]
+    ranges: List[KarmaRange] = []
 
     def __init__(self) -> None:
         """Parse all sections of karma.conf"""
