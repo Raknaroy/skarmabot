@@ -99,4 +99,53 @@ class KarmaRange:
 
 class KarmaRangesManager:
     """Checks user's karma range. Karma ranges are loaded from karma.conf"""
-    pass
+
+    blog = logging.getLogger('botlog')
+
+    KARMA_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/karma.conf')
+
+    default_range: KarmaRange
+    ranges: List[KarmaRange]
+
+    def __init__(self) -> None:
+        """Parse all sections of karma.conf"""
+
+        self.blog.info('Starting parsing karma.conf, that is located in ' + self.KARMA_CONFIG_FILE)
+
+        if not path.isfile(self.KARMA_CONFIG_FILE):
+            msg = "Couldn't find karma config file path: " + self.KARMA_CONFIG_FILE
+            self.blog.fatal(msg)
+            raise FileNotFoundError(msg)
+
+        app_config = ConfigParser()
+        app_config.read(self.KARMA_CONFIG_FILE)
+
+        self.blog.debug('Successfully read karma config file')
+
+        for section in app_config.sections():
+            self.ranges.append(KarmaRange.range_from_parsed_config(app_config[section]))
+
+        self.default_range = KarmaRange.range_from_parsed_config(app_config['DEFAULT'])
+
+    def get_range_by_karma(self, karma: int) -> KarmaRange:
+        """
+        Return KarmaRange object with parsed karma range for given karma.
+        If no or several ranges contain given karma level, ConfigParseError will be raised.
+        """
+
+        self.blog.debug(f'Parsing range for karma: {karma}')
+
+        needed_range = None
+
+        for range_ in self.ranges:
+            if range_.karma_in_range(karma):
+                if needed_range is None:
+                    needed_range = range_
+                else:
+                    msg = f'Several ranges fit karma: {karma}'
+                    self.blog.fatal(msg)
+                    raise ConfigParseError(msg)
+
+        if needed_range is None:
+            return self.default_range
+        return needed_range
