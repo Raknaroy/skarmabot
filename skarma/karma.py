@@ -20,6 +20,7 @@
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
 import logging
+import datetime
 
 from typing import List, Tuple
 from pprint import pformat
@@ -121,3 +122,22 @@ class KarmaManager(metaclass=SingletonMeta):
         return self.db.run_single_query(f'select distinct user_id, karma from karma where chat_id = %s and karma {symbol} 0 '
                                  f'order by karma {order} limit %s',
                                  [chat_id, amount])
+
+
+class StatsManager(metaclass=SingletonMeta):
+    """Api to work with stats table in database"""
+
+    blog = logging.getLogger('botlog')
+    db: DBUtils = DBUtils()
+
+    def handle_user_change_karma(self, chat_id: int, user_id: int) -> None:
+        """Update information in database after user change someone's karma"""
+        pass
+
+    def get_karma_changes_today(self, chat_id: int, user_id: int) -> int:
+        """Return how many times user changed someone's karma in this chat"""
+        pass
+
+    def get_last_karma_change_time(self, chat_id: int, user_id: int) -> datetime.datetime:
+        """Get date and time when user last changed someone's karma in this chat"""
+        pass
