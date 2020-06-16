@@ -19,20 +19,26 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
+from threading import Lock
+
 
 class SingletonMeta(type):
     """
-    Meta class for creating singleton classes
+    Thread-safe meta class for creating singleton classes
 
-    Copied from https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python.
+    Based on https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python.
 
-    Copyright (C) 2011 Adam Forsyth (https://stackoverflow.com/users/500584/agf)
+    Copyright (C) 2011 Adam Forsyth (https://stackoverflow.com/users/500584/agf) (original)
+    Copyright (C) 2020 Nikita Serba (thread-safe version)
     Original class is licensed under terms of CC BY-SA 4.0.
     For more information see Stack Overflow Public Network Terms of Service, section 6.
     """
     _instances = {}
+    _instances_lock = Lock()
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
+            with cls._instances_lock:
+                if cls not in cls._instances:
+                    cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
         return cls._instances[cls]

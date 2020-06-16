@@ -50,7 +50,8 @@ def setup_logging_ui() -> None:
               f'Logging will be turned off.')
         return
 
-    formatter = logging.Formatter('%(asctime)s - %(process)d - %(levelname)s - %(module)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(process)d - %(threadName)s (%(thread)d) '
+                                  '- %(levelname)s - %(module)s - %(message)s')
 
     tglogger = logging.getLogger("telegram.bot")
     tglogger.setLevel(logging.DEBUG)
@@ -166,9 +167,38 @@ if __name__ == "__main__":
     dispatcher.add_handler(karma_handler)
     blog.info('Added handler for /my_karma command')
 
+    start_handler = CommandHandler('start', commands.start)
+    dispatcher.add_handler(start_handler)
+    blog.info('Added handler for /start command')
+
+    top_handler = CommandHandler('top', commands.top)
+    dispatcher.add_handler(top_handler)
+    blog.info('Added handler for /top command')
+
+    antitop_handler = CommandHandler('antitop', commands.antitop)
+    dispatcher.add_handler(antitop_handler)
+    blog.info('Added handler for /antitop command')
+
+    if DEBUG_MODE:
+        gen_error_handler = CommandHandler('gen_error', commands.gen_error)
+        dispatcher.add_handler(gen_error_handler)
+        blog.info('Added handler for /gen_error command')
+
+    level_handler = CommandHandler('level', commands.level)
+    dispatcher.add_handler(level_handler)
+    blog.info('Added handler for /level command')
+
     message_handler = MessageHandler(Filters.reply & Filters.group & Filters.text & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')
+
+    group_join_handler = MessageHandler(Filters.status_update.new_chat_members, message_parser.group_join_handler)
+    dispatcher.add_handler(group_join_handler)
+    blog.info('Added handler for group join')
+
+    blog.info('Starting announcements thread')
+    ann_thread = message_parser.AnnouncementsThread(updater.bot)
+    ann_thread.start()
 
     blog.info('Starting polling')
     updater.start_polling()
