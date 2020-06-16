@@ -27,7 +27,7 @@ from threading import Thread
 from telegram import Bot
 from telegram.error import TimedOut, RetryAfter, Unauthorized
 
-from skarma.karma import KarmaManager, UsernamesManager, StatsManager
+from skarma.karma import KarmaManager, UsernamesManager, StatsManager, MessagesManager
 from skarma.utils.errorm import ErrorManager, catch_error
 from skarma.announcements import ChatsManager, AnnouncementsManager
 
@@ -122,6 +122,7 @@ def message_handler(update, context):
     from_user_id = update.effective_user.id
     user_id = update.message.reply_to_message.from_user.id
     user_name = update.message.reply_to_message.from_user.name
+    message_id = update.message.reply_to_message.message_id
     text: str = update.message.text
 
     logging.getLogger('botlog').info(f'Checking reply message from user #{from_user_id} in chat #{chat_id}')
@@ -141,6 +142,12 @@ def message_handler(update, context):
         change_code, change_value = km.check_could_user_change_karma(chat_id, from_user_id, text.startswith('+'))
 
         if change_code == KarmaManager.CHECK.OK:
+            if MessagesManager().is_user_changed_karma_on_message(chat_id, from_user_id, message_id):
+                context.bot.send_message(chat_id=chat_id, text='Вы уже оценили данное сообщение')
+                return
+            else:
+                MessagesManager().mark_message_as_used(chat_id, from_user_id, message_id)
+
             StatsManager().handle_user_change_karma(chat_id, from_user_id)
 
             if text.startswith('+'):
