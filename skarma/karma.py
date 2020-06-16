@@ -221,8 +221,8 @@ class KarmaManager(metaclass=SingletonMeta):
         kr = KarmaRangesManager().get_range_by_karma(karma)
         sm = StatsManager()
 
-        time_since_last_karma_change = sm.get_last_karma_change_time(chat_id, user_id) - datetime.datetime.utcnow()
-        if time_since_last_karma_change > kr.timeout:
+        time_since_last_karma_change = datetime.datetime.utcnow() - sm.get_last_karma_change_time(chat_id, user_id)
+        if time_since_last_karma_change < kr.timeout:
             return self.CHECK.TIMEOUT, 0
         if (raise_ and not kr.enable_plus) or (not raise_ and not kr.enable_minus):
             return self.CHECK.CHANGE_DENIED, 0
