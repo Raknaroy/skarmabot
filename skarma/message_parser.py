@@ -27,7 +27,7 @@ from threading import Thread
 from telegram import Bot
 from telegram.error import TimedOut, RetryAfter, Unauthorized
 
-from skarma.karma import KarmaManager, UsernamesManager
+from skarma.karma import KarmaManager, UsernamesManager, StatsManager
 from skarma.utils.errorm import ErrorManager, catch_error
 from skarma.announcements import ChatsManager, AnnouncementsManager
 
@@ -118,6 +118,7 @@ def message_handler(update, context):
     """Parse message that change someone's karma"""
 
     km: KarmaManager = KarmaManager()
+    sm: StatsManager = StatsManager()
     chat_id = update.effective_chat.id
     from_user_id = update.effective_user.id
     user_id = update.message.reply_to_message.from_user.id
@@ -129,6 +130,8 @@ def message_handler(update, context):
     if text.startswith('+') or text.startswith('-'):
         unm = UsernamesManager()
         unm.set_username(user_id, user_name)
+
+        sm.handle_user_change_karma(chat_id, from_user_id)
 
         if from_user_id == user_id:
             context.bot.send_message(chat_id=update.effective_chat.id, text=f'Хитрюга!')
