@@ -160,7 +160,7 @@ def level(update, context):
 
     kr = KarmaRangesManager().get_range_by_karma(KarmaManager().get_user_karma(chat_id, user_id))
 
-    message = f'Ваш уровень кармы: {kr.name} ([{kr.min_range}, {kr.max_range}])\n\n'
+    message = f'Ваш уровень кармы: {kr.name} [{kr.min_range}, {kr.max_range}]\n\n'
 
     if kr.enable_plus:
         message += f'Вы можете прибавлять +{kr.plus_value} едениц(ы/у) кармы\n'
