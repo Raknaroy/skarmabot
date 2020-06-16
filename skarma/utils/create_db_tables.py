@@ -110,6 +110,24 @@ def create_usernames_table(dbu: DBUtils):
     dbu.run_single_update_query("create unique index usernames_user_id_uindex on usernames (user_id(255));")
 
 
+def create_stats_table(dbu: DBUtils):
+    tables = dbu.run_single_query("SHOW TABLES;")
+    if tuple('stats') in tables:
+        raise DatabaseError("Table 'stats' already exists")
+
+    dbu.run_single_update_query("""create table stats
+                                   (
+                                     id int auto_increment,
+                                     chat_id text not null,
+                                     user_id text not null,
+                                     last_karma_change datetime not null,
+                                     today date not null,
+                                     today_karma_changes int not null,
+                                     constraint stats_pk
+                                      primary key (id)
+                                   );""")
+
+
 def _run_functions_and_print_db_errors(functions: List[Callable[[DBUtils], None]], dbu: DBUtils):
     for fun in functions:
         try:
@@ -123,5 +141,5 @@ if __name__ == '__main__':
 
     _run_functions_and_print_db_errors([create_error_table, create_karma_table,
                                         create_chats_table, create_announcements_table,
-                                        create_usernames_table], dbu)
+                                        create_usernames_table, create_stats_table], dbu)
     print('Done.')
