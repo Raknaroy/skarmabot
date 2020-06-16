@@ -184,6 +184,10 @@ if __name__ == "__main__":
         dispatcher.add_handler(gen_error_handler)
         blog.info('Added handler for /gen_error command')
 
+    level_handler = CommandHandler('level', commands.level)
+    dispatcher.add_handler(level_handler)
+    blog.info('Added handler for /level command')
+
     message_handler = MessageHandler(Filters.reply & Filters.group & Filters.text & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')

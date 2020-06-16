@@ -24,7 +24,7 @@ import logging
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager, catch_error
-from skarma.karma import KarmaManager, UsernamesManager, NoSuchUser
+from skarma.karma import KarmaManager, UsernamesManager, NoSuchUser, KarmaRangesManager
 from skarma.announcements import ChatsManager
 
 
@@ -148,6 +148,33 @@ def gen_error(update, context):
     else:
         logging.getLogger('botlog').debug('Error could bot be generated: access denied. Check admins list')
         context.bot.send_message(chat_id=chat_id, text='Только администратор может сгенерировать тестовую ошибку')
+
+
+@catch_error
+def level(update, context):
+    """Send user information about his karma level"""
+
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+    logging.getLogger('botlog').info(f'Sending karma level info for user #{user_id} in chat #{chat_id}')
+
+    kr = KarmaRangesManager().get_range_by_karma(KarmaManager().get_user_karma(chat_id, user_id))
+
+    message = f'Ваш уровень кармы: {kr.name} ([{kr.min_range}, {kr.max_range}])\n\n'
+
+    if kr.enable_plus:
+        message += f'Вы можете прибавлять +{kr.plus_value} едениц(ы/у) кармы\n'
+    else:
+        message += f'Вы не можете прибавлять карму :(\n'
+
+    if kr.enable_minus:
+        message += f'Вы можете отнимать -{kr.minus_value} едениц(ы/у) кармы\n'
+    else:
+        message += f'Вы не можете прибавлять карму :(\n'
+
+    message += f'Вы можете изменять карму {kr.day_max} раз в день'
+
+    context.bot.send_message(chat_id=chat_id, text=message)
 
 
 @catch_error
