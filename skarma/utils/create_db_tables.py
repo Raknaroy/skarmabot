@@ -127,6 +127,8 @@ def create_stats_table(dbu: DBUtils):
                                       primary key (id)
                                    );""")
 
+    dbu.run_single_update_query('alter table stats add unique unique_index(chat_id(255), user_id(255));')
+
 
 def _run_functions_and_print_db_errors(functions: List[Callable[[DBUtils], None]], dbu: DBUtils):
     for fun in functions:
