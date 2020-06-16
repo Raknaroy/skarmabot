@@ -130,8 +130,6 @@ def message_handler(update, context):
         unm = UsernamesManager()
         unm.set_username(user_id, user_name)
 
-        StatsManager().handle_user_change_karma(chat_id, from_user_id)
-
         if from_user_id == user_id:
             context.bot.send_message(chat_id=update.effective_chat.id, text=f'Хитрюга!')
             return
@@ -139,6 +137,21 @@ def message_handler(update, context):
         if update.message.reply_to_message.from_user.is_bot:
             context.bot.send_message(chat_id=update.effective_chat.id, text='У роботов нет кармы')
             return
+
+        change_code, change_value = km.check_could_user_change_karma(chat_id, from_user_id, text.startswith('+'))
+
+        if change_code == KarmaManager.CHECK.OK:
+            StatsManager().handle_user_change_karma(chat_id, from_user_id)
+        elif change_code == KarmaManager.CHECK.TIMEOUT:
+            context.bot.send_message(chat_id=chat_id, text='Вы увеличиваете карму слишком часто, подождите немного')
+            return
+        elif change_code == KarmaManager.CHECK.CHANGE_DENIED:
+            if text.startswith('+'):
+                context.bot.send_message(chat_id=chat_id, text='Вы не имеете право увеличивать карму')
+            else:
+                context.bot.send_message(chat_id=chat_id, text='Вы не имеете право уменьшать карму')
+        elif change_code == KarmaManager.CHECK.DAY_MAX_EXCEED:
+            context.bot.send_message(chat_id=chat_id, text='Вы исчерпали дневной лимит на изменения кармы')
 
     if text.startswith('+'):
         km.increase_user_karma(chat_id, user_id, 1)

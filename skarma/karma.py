@@ -24,11 +24,13 @@ import datetime
 
 from typing import List, Tuple, Optional
 from pprint import pformat
+from enum import Enum
 
 from mysql.connector.errors import DatabaseError
 
 from skarma.utils.singleton import SingletonMeta
 from skarma.utils.db import DBUtils
+from skarma.karma_config_parser import KarmaRangesManager
 
 
 class NoSuchUser(Exception):
@@ -122,6 +124,18 @@ class KarmaManager(metaclass=SingletonMeta):
         return self.db.run_single_query(f'select distinct user_id, karma from karma where chat_id = %s and karma {symbol} 0 '
                                  f'order by karma {order} limit %s',
                                  [chat_id, amount])
+
+    class CHECK(Enum):
+        OK = 0  # user can change karma
+        TIMEOUT = 1  # user change karma too often
+        CHANGE_DENIED = 2  # user can't raise or lower karma
+        DAY_MAX_EXCEED = 3  # day karma change limit exceed
+
+    def check_could_user_change_karma(self, chat_id: int, user_id: int, raise_: bool) -> Tuple[CHECK, int]:
+        """Check if user can change karma and return tuple with CHECK enum code with error number
+        and karma change size"""
+
+        return self.CHECK.OK, 1
 
 
 class StatsManager(metaclass=SingletonMeta):
