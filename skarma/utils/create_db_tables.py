@@ -130,6 +130,22 @@ def create_stats_table(dbu: DBUtils):
     dbu.run_single_update_query('alter table stats add unique unique_index(chat_id(255), user_id(255));')
 
 
+def create_messages_table(dbu: DBUtils):
+    tables = dbu.run_single_query("SHOW TABLES;")
+    if tuple('messages') in tables:
+        raise DatabaseError("Table 'messages' already exists")
+
+    dbu.run_single_update_query("""create table messages
+                                   (
+                                     id int auto_increment,
+                                     message_id text null,
+                                     chat_id text not null,
+                                     user_id text not null,
+                                     constraint messages_pk
+                                      primary key (id)
+                                   );""")
+
+
 def _run_functions_and_print_db_errors(functions: List[Callable[[DBUtils], None]], dbu: DBUtils):
     for fun in functions:
         try:
@@ -143,5 +159,6 @@ if __name__ == '__main__':
 
     _run_functions_and_print_db_errors([create_error_table, create_karma_table,
                                         create_chats_table, create_announcements_table,
-                                        create_usernames_table, create_stats_table], dbu)
+                                        create_usernames_table, create_stats_table,
+                                        create_messages_table], dbu)
     print('Done.')
