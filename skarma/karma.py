@@ -6,6 +6,7 @@
 #
 # Yet another carma bot for telegram
 # Copyright (C) 2020 Nikita Serba. All rights reserved
+# https://github.com/sandsbit/skarmabot
 #
 # SKarma is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -259,4 +260,4 @@ class KarmaManager(metaclass=SingletonMeta):
         if raise_:
             return self.CHECK.OK, kr.plus_value
         else:
-            return self.CHECK.OK, kr.plus_value
+            return self.CHECK.OK, kr.minus_value

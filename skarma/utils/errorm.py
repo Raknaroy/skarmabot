@@ -6,6 +6,7 @@
 #
 # Yet another carma bot for telegram
 # Copyright (C) 2020 Nikita Serba. All rights reserved
+# https://github.com/sandsbit/skarmabot
 #
 # SKarma is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -98,9 +99,9 @@ def catch_error(f):
     """
 
     @wraps(f)
-    def wrap(bot, update):
+    def wrap(*args, **kwargs):
         try:
-            return f(bot, update)
+            return f(*args, **kwargs)
         except Exception as e:
             logging.getLogger('botlog').exception(e)
             ErrorManager().report_exception(e)
