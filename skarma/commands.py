@@ -82,6 +82,11 @@ def bug_report(update, context):
 @catch_error
 def my_karma(update, context):
     """Get user's karma"""
+
+    if update.effective_chat.type == 'private':
+        context.bot.send_message(update.effective_chat.id, text='Эта команда доступна только в групповых чатах!')
+        return
+
     logging.getLogger('botlog').info(f'Printing karma of user #{update.effective_user.id} '
                                      f'in chat #{update.effective_chat.id}')
 
@@ -92,6 +97,10 @@ def my_karma(update, context):
 @catch_error
 def top(update, context):
     """Print top 5 of chat"""
+
+    if update.effective_chat.type == 'private':
+        context.bot.send_message(update.effective_chat.id, text='Эта команда доступна только в групповых чатах!')
+        return
 
     chat_id = update.effective_chat.id
 
@@ -113,6 +122,10 @@ def top(update, context):
 @catch_error
 def antitop(update, context):
     """Print anti-top 5 of chat"""
+
+    if update.effective_chat.type == 'private':
+        context.bot.send_message(update.effective_chat.id, text='Эта команда доступна только в групповых чатах!')
+        return
 
     chat_id = update.effective_chat.id
 
@@ -154,6 +167,10 @@ def gen_error(update, context):
 @catch_error
 def level(update, context):
     """Send user information about his karma level"""
+
+    if update.effective_chat.type == 'private':
+        context.bot.send_message(update.effective_chat.id, text='Эта команда доступна только в групповых чатах!')
+        return
 
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
