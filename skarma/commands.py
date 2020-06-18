@@ -75,8 +75,8 @@ def bug_report(update, context):
                              text='Сообщить об ошибке можно по адрессу https://github.com/sandsbit/skarmabot/issues '
                                   '(толькл по англ.). Используйте эту форму только для сообщения об технических '
                                   'ошибках. Если вас не устраивает что вам/кому-то подняли/опустили карму без повода, '
-                                  'обратитесь к администратору группы. Если вы нашли узявимость в боте, сообщите о ней '
-                                  'тут: https://github.com/sandsbit/skarmabot/security/advisories/new.')
+                                  'обратитесь к администратору группы. Если вы нашли узявимость в боте, ознакомтесь с '
+                                  'https://github.com/sandsbit/skarmabot/blob/master/SECURITY.md')
 
 
 @catch_error
