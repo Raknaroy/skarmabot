@@ -189,7 +189,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(level_handler)
     blog.info('Added handler for /level command')
 
-    help_handler = CommandHandler('help', commands.help)
+    help_handler = CommandHandler('help', commands.hhelp)
     dispatcher.add_handler(help_handler)
     blog.info('Added handler for /help command')
 

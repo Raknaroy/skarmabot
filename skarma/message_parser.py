@@ -33,6 +33,7 @@ from skarma.karma import KarmaManager, UsernamesManager, StatsManager, MessagesM
 from skarma.utils.errorm import ErrorManager, catch_error
 from skarma.utils.db import DBUtils
 from skarma.announcements import ChatsManager, AnnouncementsManager
+from skarma.commands import hhelp
 
 
 class AnnouncementsThread(Thread):
@@ -236,6 +237,7 @@ def handle_group_migration_or_join(update, context):
         if new_member.id == context.bot.id:
             chat_id = update.effective_chat.id
             logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
+            hhelp(update, context, 'Добро пожаловать!')
             ChatsManager().add_new_chat(chat_id)
     if update.message.migrate_to_chat_id is not None:
         old_chat_id = update.effective_chat.id

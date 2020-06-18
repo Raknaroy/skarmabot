@@ -22,6 +22,8 @@
 
 import logging
 
+from typing import Optional
+
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager, catch_error
@@ -196,31 +198,35 @@ def level(update, context):
 
 
 @catch_error
-def start(update, _):
+def hhelp(update, context, custom_first_line: Optional[str] = None):
+    chat_id = update.effective_chat.id
+    logging.getLogger('botlog').info(f'Sending help to chat #{chat_id}')
+
+    if custom_first_line is not None:
+        help_ = custom_first_line + '\n\n'
+    else:
+        help_ = 'Нужна помощь? Ловите!\n\n'
+
+    help_ += 'Используйте +/- в начале ответа не сообщение, чтобы повысить/понизить ' \
+             'карму человека. Бот так же будет реагировать на некоторые фразы и смайлики.\n\n' \
+             'Полезные команды:\n' \
+             '/help - эта помощь)\n' \
+             '/my_karma - проверить вашу карму\n' \
+             '/level - узнать уровень вашей кармы\n' \
+             '/top - ТОП чата по карме\n' \
+             '/antitop - ТОП худших в чате по карме\n' \
+             '/version - узнать версию бота\n' \
+             '/support - как с нами связаться?\n' \
+             '/bug_report - нашли ошибку?'
+
+    context.bot.send_message(chat_id=chat_id, text=help_)
+
+
+@catch_error
+def start(update, context):
     """Save user's chat id"""
-    # TODO: help
+    hhelp(update, context, 'Добро пожаловать!')
 
     chat_id = update.effective_chat.id
     logging.getLogger('botlog').info(f'User with id #{chat_id} will be added to database after running /start')
     ChatsManager().add_new_chat(chat_id)
-
-
-@catch_error
-def help(update, context):
-    chat_id = update.effective_chat.id
-    logging.getLogger('botlog').info(f'Sending help to chat #{chat_id}')
-
-    help_ = 'Нужна помощь? Ловите!\n\n' \
-            'Используйте +/- в начале ответа не сообщение, чтобы повысить/понизить ' \
-            'карму человека. Бот так же будет реагировать на некоторые фразы и смайлики.\n\n' \
-            'Полезные команды:\n' \
-            '/help - эта помощь)\n' \
-            '/my_karma - проверить вашу карму\n' \
-            '/level - узнать уровень вашей кармы\n' \
-            '/top - ТОП чата по карме\n' \
-            '/antitop - ТОП худших в чате по карме\n' \
-            '/version - узнать версию бота\n' \
-            '/support - как с нами связаться?\n' \
-            '/bug_report - нашли ошибку?'
-
-    context.bot.send_message(chat_id=chat_id, text=help_)
