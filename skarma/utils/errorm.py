@@ -99,9 +99,9 @@ def catch_error(f):
     """
 
     @wraps(f)
-    def wrap(bot, update):
+    def wrap(*args, **kwargs):
         try:
-            return f(bot, update)
+            return f(*args, **kwargs)
         except Exception as e:
             logging.getLogger('botlog').exception(e)
             ErrorManager().report_exception(e)
