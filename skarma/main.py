@@ -192,6 +192,10 @@ if __name__ == "__main__":
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')
 
+    migrate_handler = MessageHandler(Filters.all, message_parser.handle_group_migration)
+    dispatcher.add_handler(migrate_handler)
+    blog.info('Added handler for group migration to supergroup')
+
     group_join_handler = MessageHandler(Filters.status_update.new_chat_members, message_parser.group_join_handler)
     dispatcher.add_handler(group_join_handler)
     blog.info('Added handler for group join')

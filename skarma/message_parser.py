@@ -30,6 +30,7 @@ from telegram.error import TimedOut, RetryAfter, Unauthorized
 
 from skarma.karma import KarmaManager, UsernamesManager, StatsManager, MessagesManager
 from skarma.utils.errorm import ErrorManager, catch_error
+from skarma.utils.db import DBUtils
 from skarma.announcements import ChatsManager, AnnouncementsManager
 
 
@@ -233,3 +234,18 @@ def group_join_handler(update, _):
     chat_id = update.effective_chat.id
     logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
     ChatsManager().add_new_chat(chat_id)
+
+
+@catch_error
+def handle_group_migration(update, context):
+    if update.migrate_to_chat_id is not None:
+        old_chat_id = update.effective_chat.id
+        new_chat_id = update.migrate_to_chat_id
+
+        logging.getLogger('botlog').info(f'Migrating chat from #{old_chat_id} to #{new_chat_id}')
+
+        db = DBUtils()
+
+        tables = ['chats', 'karma', 'stats']
+        for table in tables:
+            db.run_single_update_query(f'update {table} set chat_id = %s where chat_id = %s', (new_chat_id, old_chat_id))
