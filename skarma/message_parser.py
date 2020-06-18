@@ -230,14 +230,12 @@ def message_handler(update, context):
 
 
 @catch_error
-def group_join_handler(update, _):
-    chat_id = update.effective_chat.id
-    logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
-    ChatsManager().add_new_chat(chat_id)
-
-
-@catch_error
-def handle_group_migration(update, _):
+def handle_group_migration_or_join(update, context):
+    for new_member in update.message.new_chat_members:
+        if new_member.id == context.bot.id:
+            chat_id = update.effective_chat.id
+            logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
+            ChatsManager().add_new_chat(chat_id)
     if update.message.migrate_to_chat_id is not None:
         old_chat_id = update.effective_chat.id
         new_chat_id = update.message.migrate_to_chat_id
