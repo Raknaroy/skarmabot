@@ -259,4 +259,4 @@ class KarmaManager(metaclass=SingletonMeta):
         if raise_:
             return self.CHECK.OK, kr.plus_value
         else:
-            return self.CHECK.OK, kr.plus_value
+            return self.CHECK.OK, kr.minus_value
