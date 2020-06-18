@@ -23,6 +23,7 @@ import time
 import logging
 
 from threading import Thread
+from enum import Enum
 
 from telegram import Bot
 from telegram.error import TimedOut, RetryAfter, Unauthorized
@@ -113,6 +114,59 @@ class AnnouncementsThread(Thread):
             time.sleep(10*60)
 
 
+class ParserResult(Enum):
+    NOTHING = 0
+    RAISE = 1
+    LOWER = 2
+
+
+RAISE_COMMANDS = [
+    '+',
+    'плюс',
+    'согласен',
+    'именно',
+    'поддерживаю',
+    'красава',
+    'лучший',
+    'да ты ебаный волшебник',
+    'да ты ебаный гений',
+    'гениально',
+    'совершенно верно',
+    'верно',
+    'резонно',
+    'обьективно',
+    'рационально',
+    'умно',
+    '😍', '👍'
+]
+
+LOWER_COMMANDS = [
+    '-',
+    'ты еблан',
+    'долбаеб?',
+    'херня',
+    'хрень',
+    'фигня',
+    'хуйня',
+    'иди нахуй',
+    '🙄', '🖕', '🙅‍', '🤦', '️👎', '😡', '😑', '😐'
+]
+
+
+def _parse_message(msg: str) -> ParserResult:
+    """Check if message is karma change command"""
+    msg_lower = msg.lower()
+    for raise_command in RAISE_COMMANDS:
+        if msg_lower.startswith(raise_command):
+            return ParserResult.RAISE
+
+    for lower_command in LOWER_COMMANDS:
+        if msg_lower.startswith(lower_command):
+            return ParserResult.LOWER
+
+    return ParserResult.NOTHING
+
+
 @catch_error
 def message_handler(update, context):
     """Parse message that change someone's karma"""
@@ -127,7 +181,9 @@ def message_handler(update, context):
 
     logging.getLogger('botlog').info(f'Checking reply message from user #{from_user_id} in chat #{chat_id}')
 
-    if text.startswith('+') or text.startswith('-'):
+    parse_msg = _parse_message(text)
+
+    if parse_msg != ParserResult.NOTHING:
         unm = UsernamesManager()
         unm.set_username(user_id, user_name)
 
@@ -139,7 +195,8 @@ def message_handler(update, context):
             context.bot.send_message(chat_id=update.effective_chat.id, text='У роботов нет кармы')
             return
 
-        change_code, change_value = km.check_could_user_change_karma(chat_id, from_user_id, text.startswith('+'))
+        change_code, change_value = km.check_could_user_change_karma(chat_id, from_user_id,
+                                                                     parse_msg == ParserResult.RAISE)
 
         if change_code == KarmaManager.CHECK.OK:
             if MessagesManager().is_user_changed_karma_on_message(chat_id, from_user_id, message_id):
@@ -150,7 +207,7 @@ def message_handler(update, context):
 
             StatsManager().handle_user_change_karma(chat_id, from_user_id)
 
-            if text.startswith('+'):
+            if parse_msg == ParserResult.RAISE:
                 km.increase_user_karma(chat_id, user_id, change_value)
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text=f'+{change_value} к карме {user_name}\n'
@@ -163,7 +220,7 @@ def message_handler(update, context):
         elif change_code == KarmaManager.CHECK.TIMEOUT:
             context.bot.send_message(chat_id=chat_id, text='Вы увеличиваете карму слишком часто, подождите немного')
         elif change_code == KarmaManager.CHECK.CHANGE_DENIED:
-            if text.startswith('+'):
+            if parse_msg == ParserResult.RAISE:
                 context.bot.send_message(chat_id=chat_id, text='Вы не имеете право увеличивать карму')
             else:
                 context.bot.send_message(chat_id=chat_id, text='Вы не имеете право уменьшать карму')
