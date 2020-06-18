@@ -237,10 +237,10 @@ def group_join_handler(update, _):
 
 
 @catch_error
-def handle_group_migration(update, context):
-    if update.migrate_to_chat_id is not None:
+def handle_group_migration(update, _):
+    if update.message.migrate_to_chat_id is not None:
         old_chat_id = update.effective_chat.id
-        new_chat_id = update.migrate_to_chat_id
+        new_chat_id = update.message.migrate_to_chat_id
 
         logging.getLogger('botlog').info(f'Migrating chat from #{old_chat_id} to #{new_chat_id}')
 
