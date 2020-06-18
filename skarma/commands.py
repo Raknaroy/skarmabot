@@ -6,6 +6,7 @@
 #
 # Yet another carma bot for telegram
 # Copyright (C) 2020 Nikita Serba. All rights reserved
+# https://github.com/sandsbit/skarmabot
 #
 # SKarma is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +21,8 @@
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
 import logging
+
+from typing import Optional
 
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
@@ -74,13 +77,18 @@ def bug_report(update, context):
                              text='Сообщить об ошибке можно по адрессу https://github.com/sandsbit/skarmabot/issues '
                                   '(толькл по англ.). Используйте эту форму только для сообщения об технических '
                                   'ошибках. Если вас не устраивает что вам/кому-то подняли/опустили карму без повода, '
-                                  'обратитесь к администратору группы. Если вы нашли узявимость в боте, сообщите о ней '
-                                  'тут: https://github.com/sandsbit/skarmabot/security/advisories/new.')
+                                  'обратитесь к администратору группы. Если вы нашли узявимость в боте, ознакомтесь с '
+                                  'https://github.com/sandsbit/skarmabot/blob/master/SECURITY.md')
 
 
 @catch_error
 def my_karma(update, context):
     """Get user's karma"""
+
+    if update.effective_chat.type == 'private':
+        context.bot.send_message(update.effective_chat.id, text='Эта команда доступна только в групповых чатах!')
+        return
+
     logging.getLogger('botlog').info(f'Printing karma of user #{update.effective_user.id} '
                                      f'in chat #{update.effective_chat.id}')
 
@@ -91,6 +99,10 @@ def my_karma(update, context):
 @catch_error
 def top(update, context):
     """Print top 5 of chat"""
+
+    if update.effective_chat.type == 'private':
+        context.bot.send_message(update.effective_chat.id, text='Эта команда доступна только в групповых чатах!')
+        return
 
     chat_id = update.effective_chat.id
 
@@ -112,6 +124,10 @@ def top(update, context):
 @catch_error
 def antitop(update, context):
     """Print anti-top 5 of chat"""
+
+    if update.effective_chat.type == 'private':
+        context.bot.send_message(update.effective_chat.id, text='Эта команда доступна только в групповых чатах!')
+        return
 
     chat_id = update.effective_chat.id
 
@@ -154,6 +170,10 @@ def gen_error(update, context):
 def level(update, context):
     """Send user information about his karma level"""
 
+    if update.effective_chat.type == 'private':
+        context.bot.send_message(update.effective_chat.id, text='Эта команда доступна только в групповых чатах!')
+        return
+
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
     logging.getLogger('botlog').info(f'Sending karma level info for user #{user_id} in chat #{chat_id}')
@@ -178,9 +198,34 @@ def level(update, context):
 
 
 @catch_error
-def start(update, _):
+def hhelp(update, context, custom_first_line: Optional[str] = None):
+    chat_id = update.effective_chat.id
+    logging.getLogger('botlog').info(f'Sending help to chat #{chat_id}')
+
+    if custom_first_line is not None:
+        help_ = custom_first_line + '\n\n'
+    else:
+        help_ = 'Нужна помощь? Ловите!\n\n'
+
+    help_ += 'Используйте +/- в начале ответа не сообщение, чтобы повысить/понизить ' \
+             'карму человека. Бот так же будет реагировать на некоторые фразы и смайлики.\n\n' \
+             'Полезные команды:\n' \
+             '/help - эта помощь)\n' \
+             '/my_karma - проверить вашу карму\n' \
+             '/level - узнать уровень вашей кармы\n' \
+             '/top - ТОП чата по карме\n' \
+             '/antitop - ТОП худших в чате по карме\n' \
+             '/version - узнать версию бота\n' \
+             '/support - как с нами связаться?\n' \
+             '/bug_report - нашли ошибку?'
+
+    context.bot.send_message(chat_id=chat_id, text=help_)
+
+
+@catch_error
+def start(update, context):
     """Save user's chat id"""
-    # TODO: help
+    hhelp(update, context, 'Добро пожаловать!')
 
     chat_id = update.effective_chat.id
     logging.getLogger('botlog').info(f'User with id #{chat_id} will be added to database after running /start')

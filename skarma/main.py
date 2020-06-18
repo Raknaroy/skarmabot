@@ -6,6 +6,7 @@
 #
 # Yet another carma bot for telegram
 # Copyright (C) 2020 Nikita Serba. All rights reserved
+# https://github.com/sandsbit/skarmabot
 #
 # SKarma is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -188,13 +189,17 @@ if __name__ == "__main__":
     dispatcher.add_handler(level_handler)
     blog.info('Added handler for /level command')
 
+    help_handler = CommandHandler('help', commands.hhelp)
+    dispatcher.add_handler(help_handler)
+    blog.info('Added handler for /help command')
+
     message_handler = MessageHandler(Filters.reply & Filters.group & Filters.text & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')
 
-    group_join_handler = MessageHandler(Filters.status_update.new_chat_members, message_parser.group_join_handler)
-    dispatcher.add_handler(group_join_handler)
-    blog.info('Added handler for group join')
+    migrate_handler = MessageHandler(Filters.all, message_parser.handle_group_migration_or_join)
+    dispatcher.add_handler(migrate_handler)
+    blog.info('Added handler for group migration to supergroup or group join')
 
     blog.info('Starting announcements thread')
     ann_thread = message_parser.AnnouncementsThread(updater.bot)

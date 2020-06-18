@@ -6,6 +6,7 @@
 #
 # Yet another carma bot for telegram
 # Copyright (C) 2020 Nikita Serba. All rights reserved
+# https://github.com/sandsbit/skarmabot
 #
 # SKarma is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -23,13 +24,16 @@ import time
 import logging
 
 from threading import Thread
+from enum import Enum
 
 from telegram import Bot
 from telegram.error import TimedOut, RetryAfter, Unauthorized
 
 from skarma.karma import KarmaManager, UsernamesManager, StatsManager, MessagesManager
 from skarma.utils.errorm import ErrorManager, catch_error
+from skarma.utils.db import DBUtils
 from skarma.announcements import ChatsManager, AnnouncementsManager
+from skarma.commands import hhelp
 
 
 class AnnouncementsThread(Thread):
@@ -113,6 +117,59 @@ class AnnouncementsThread(Thread):
             time.sleep(10*60)
 
 
+class ParserResult(Enum):
+    NOTHING = 0
+    RAISE = 1
+    LOWER = 2
+
+
+RAISE_COMMANDS = [
+    '+',
+    'плюс',
+    'согласен',
+    'именно',
+    'поддерживаю',
+    'красава',
+    'лучший',
+    'да ты ебаный волшебник',
+    'да ты ебаный гений',
+    'гениально',
+    'совершенно верно',
+    'верно',
+    'резонно',
+    'обьективно',
+    'рационально',
+    'умно',
+    '😍', '👍'
+]
+
+LOWER_COMMANDS = [
+    '-',
+    'ты еблан',
+    'долбаеб?',
+    'херня',
+    'хрень',
+    'фигня',
+    'хуйня',
+    'иди нахуй',
+    '🙄', '🖕', '🙅‍', '🤦', '️👎', '😡', '😑', '😐'
+]
+
+
+def _parse_message(msg: str) -> ParserResult:
+    """Check if message is karma change command"""
+    msg_lower = msg.lower()
+    for raise_command in RAISE_COMMANDS:
+        if msg_lower.startswith(raise_command):
+            return ParserResult.RAISE
+
+    for lower_command in LOWER_COMMANDS:
+        if msg_lower.startswith(lower_command):
+            return ParserResult.LOWER
+
+    return ParserResult.NOTHING
+
+
 @catch_error
 def message_handler(update, context):
     """Parse message that change someone's karma"""
@@ -127,7 +184,9 @@ def message_handler(update, context):
 
     logging.getLogger('botlog').info(f'Checking reply message from user #{from_user_id} in chat #{chat_id}')
 
-    if text.startswith('+') or text.startswith('-'):
+    parse_msg = _parse_message(text)
+
+    if parse_msg != ParserResult.NOTHING:
         unm = UsernamesManager()
         unm.set_username(user_id, user_name)
 
@@ -139,7 +198,8 @@ def message_handler(update, context):
             context.bot.send_message(chat_id=update.effective_chat.id, text='У роботов нет кармы')
             return
 
-        change_code, change_value = km.check_could_user_change_karma(chat_id, from_user_id, text.startswith('+'))
+        change_code, change_value = km.check_could_user_change_karma(chat_id, from_user_id,
+                                                                     parse_msg == ParserResult.RAISE)
 
         if change_code == KarmaManager.CHECK.OK:
             if MessagesManager().is_user_changed_karma_on_message(chat_id, from_user_id, message_id):
@@ -150,7 +210,7 @@ def message_handler(update, context):
 
             StatsManager().handle_user_change_karma(chat_id, from_user_id)
 
-            if text.startswith('+'):
+            if parse_msg == ParserResult.RAISE:
                 km.increase_user_karma(chat_id, user_id, change_value)
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text=f'+{change_value} к карме {user_name}\n'
@@ -161,9 +221,9 @@ def message_handler(update, context):
                                          text=f'-{change_value} к карме {user_name}\n'
                                               f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
         elif change_code == KarmaManager.CHECK.TIMEOUT:
-            context.bot.send_message(chat_id=chat_id, text='Вы увеличиваете карму слишком часто, подождите немного')
+            context.bot.send_message(chat_id=chat_id, text='Вы изменяете карму слишком часто, подождите немного')
         elif change_code == KarmaManager.CHECK.CHANGE_DENIED:
-            if text.startswith('+'):
+            if parse_msg == ParserResult.RAISE:
                 context.bot.send_message(chat_id=chat_id, text='Вы не имеете право увеличивать карму')
             else:
                 context.bot.send_message(chat_id=chat_id, text='Вы не имеете право уменьшать карму')
@@ -172,7 +232,21 @@ def message_handler(update, context):
 
 
 @catch_error
-def group_join_handler(update, _):
-    chat_id = update.effective_chat.id
-    logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
-    ChatsManager().add_new_chat(chat_id)
+def handle_group_migration_or_join(update, context):
+    for new_member in update.message.new_chat_members:
+        if new_member.id == context.bot.id:
+            chat_id = update.effective_chat.id
+            logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
+            hhelp(update, context, 'Добро пожаловать!')
+            ChatsManager().add_new_chat(chat_id)
+    if update.message.migrate_to_chat_id is not None:
+        old_chat_id = update.effective_chat.id
+        new_chat_id = update.message.migrate_to_chat_id
+
+        logging.getLogger('botlog').info(f'Migrating chat from #{old_chat_id} to #{new_chat_id}')
+
+        db = DBUtils()
+
+        tables = ['chats', 'karma', 'stats']
+        for table in tables:
+            db.run_single_update_query(f'update {table} set chat_id = %s where chat_id = %s', (new_chat_id, old_chat_id))
