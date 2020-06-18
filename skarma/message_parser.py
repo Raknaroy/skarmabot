@@ -219,7 +219,7 @@ def message_handler(update, context):
                                          text=f'-{change_value} к карме {user_name}\n'
                                               f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
         elif change_code == KarmaManager.CHECK.TIMEOUT:
-            context.bot.send_message(chat_id=chat_id, text='Вы увеличиваете карму слишком часто, подождите немного')
+            context.bot.send_message(chat_id=chat_id, text='Вы изменяете карму слишком часто, подождите немного')
         elif change_code == KarmaManager.CHECK.CHANGE_DENIED:
             if parse_msg == ParserResult.RAISE:
                 context.bot.send_message(chat_id=chat_id, text='Вы не имеете право увеличивать карму')
