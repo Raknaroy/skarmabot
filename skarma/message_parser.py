@@ -174,6 +174,9 @@ def _parse_message(msg: str) -> ParserResult:
 def message_handler(update, context):
     """Parse message that change someone's karma"""
 
+    if not hasattr(update.message, 'reply_to_message'):
+        return
+
     km: KarmaManager = KarmaManager()
     chat_id = update.effective_chat.id
     from_user_id = update.effective_user.id
@@ -233,20 +236,22 @@ def message_handler(update, context):
 
 @catch_error
 def handle_group_migration_or_join(update, context):
-    for new_member in update.message.new_chat_members:
-        if new_member.id == context.bot.id:
-            chat_id = update.effective_chat.id
-            logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
-            hhelp(update, context, 'Добро пожаловать!')
-            ChatsManager().add_new_chat(chat_id)
-    if update.message.migrate_to_chat_id is not None:
-        old_chat_id = update.effective_chat.id
-        new_chat_id = update.message.migrate_to_chat_id
+    if update.message is not None:
+        if update.message.new_chat_members is not None:
+            for new_member in update.message.new_chat_members:
+                if new_member.id == context.bot.id:
+                    chat_id = update.effective_chat.id
+                    logging.getLogger('botlog').info(f'Group with id #{chat_id} will be added to database after adding bot to it')
+                    hhelp(update, context, 'Добро пожаловать!')
+                    ChatsManager().add_new_chat(chat_id)
+        if update.message.migrate_to_chat_id is not None:
+            old_chat_id = update.effective_chat.id
+            new_chat_id = update.message.migrate_to_chat_id
 
-        logging.getLogger('botlog').info(f'Migrating chat from #{old_chat_id} to #{new_chat_id}')
+            logging.getLogger('botlog').info(f'Migrating chat from #{old_chat_id} to #{new_chat_id}')
 
-        db = DBUtils()
+            db = DBUtils()
 
-        tables = ['chats', 'karma', 'stats']
-        for table in tables:
-            db.run_single_update_query(f'update {table} set chat_id = %s where chat_id = %s', (new_chat_id, old_chat_id))
+            tables = ['chats', 'karma', 'stats']
+            for table in tables:
+                db.run_single_update_query(f'update {table} set chat_id = %s where chat_id = %s', (new_chat_id, old_chat_id))
