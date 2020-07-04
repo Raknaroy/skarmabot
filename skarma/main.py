@@ -206,13 +206,15 @@ if __name__ == "__main__":
     dispatcher.add_handler(help_handler)
     blog.info('Added handler for /help command')
 
-    clear_errors_handler = CommandHandler('clear_errors', commands.clear_errors)
-    dispatcher.add_handler(clear_errors_handler)
-    blog.info('Added handler for /clear_errors command')
+    if DEBUG_MODE:
+        clear_errors_handler = CommandHandler('clear_errors', commands.clear_errors)
+        dispatcher.add_handler(clear_errors_handler)
+        blog.info('Added handler for /clear_errors command')
 
-    chat_id_handler = CommandHandler('chat_id', commands.chat_id_)
-    dispatcher.add_handler(chat_id_handler)
-    blog.info('Added handler for /chat_id command')
+    if DEBUG_MODE:
+        chat_id_handler = CommandHandler('chat_id', commands.chat_id_)
+        dispatcher.add_handler(chat_id_handler)
+        blog.info('Added handler for /chat_id command')
 
     message_handler = MessageHandler(Filters.reply & Filters.group & (Filters.text | Filters.sticker) & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
