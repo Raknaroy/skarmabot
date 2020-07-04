@@ -22,6 +22,7 @@
 
 import datetime
 import logging
+import codecs
 
 from math import inf
 from configparser import ConfigParser, SectionProxy
@@ -130,7 +131,7 @@ class KarmaRangesManager(metaclass=SingletonMeta):
             raise FileNotFoundError(msg)
 
         app_config = ConfigParser()
-        app_config.read(self.KARMA_CONFIG_FILE)
+        app_config.read_file(codecs.open(self.KARMA_CONFIG_FILE, 'r', 'utf8'))
 
         self.blog.debug('Successfully read karma config file')
 
