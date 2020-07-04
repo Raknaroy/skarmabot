@@ -34,15 +34,30 @@ from skarma import commands, message_parser
 from skarma.app_info import AppInfo
 from skarma.utils.errorm import ErrorManager
 
-LOGGING_DIR = '/var/log/skarma'
+LOGGING_DIR: str
+
+if os.name == 'nt':
+    LOGGING_DIR = r'%AppData%\skarma\logs'  # only %AppData% can be used in path, other envs won't work
+else:
+    LOGGING_DIR = '/var/log/skarma'
 
 
 def setup_logging_ui() -> None:
     """
+    UNIX:
     Setup logging into /var/log. If app don't have permission
-    to access /var/log/skarma, than it will launch chmod to get
-    it. Entering sudo password may be needed.
+    to access /var/log/skarma, than error message will be printed.
+
+    WINDOWS:
+    Same as UNIX, but logging into %AppData%\skarma\logs.
     """
+
+    global LOGGING_DIR
+
+    if os.name == 'nt':
+        LOGGING_DIR = LOGGING_DIR.replace('%AppData%', os.getenv('APPDATA'))
+
+        os.makedirs(LOGGING_DIR)
 
     if not path.exists(LOGGING_DIR) or not path.isdir(LOGGING_DIR) or not os.access(LOGGING_DIR, os.W_OK):
         ErrorManager().report_error("Logging problem", "Can't access logging directory. Logging will be turned off.")
@@ -114,9 +129,6 @@ def setup_logging_ui() -> None:
 if __name__ == "__main__":
     if sys.version_info < (3, 7):
         print('Invalid python version. Use python 3.7 or newer')
-
-    if os.name != 'posix':
-        print('Invalid os! Use any UNIX or Linux machine, including macOS')
 
     setup_logging_ui()
 
