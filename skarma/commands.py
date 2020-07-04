@@ -246,3 +246,13 @@ def clear_errors(update, context):
     else:
         logging.getLogger('botlog').debug('Errors could bot be deleted: access denied. Check admins list')
         context.bot.send_message(chat_id=chat_id, text='Только администратор может удалить все ошибки')
+
+
+@catch_error
+def chat_id_(update, context):
+    """Print chat id"""
+
+    chat_id = update.effective_chat.id
+
+    logging.getLogger('botlog').info(f'Printing chat id in chat #{chat_id}')
+    context.bot.send_message(chat_id=chat_id, text=f'Current chat id: {chat_id}')

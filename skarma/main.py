@@ -210,6 +210,10 @@ if __name__ == "__main__":
     dispatcher.add_handler(clear_errors_handler)
     blog.info('Added handler for /clear_errors command')
 
+    chat_id_handler = CommandHandler('chat_id', commands.chat_id_)
+    dispatcher.add_handler(chat_id_handler)
+    blog.info('Added handler for /chat_id command')
+
     message_handler = MessageHandler(Filters.reply & Filters.group & (Filters.text | Filters.sticker) & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')
