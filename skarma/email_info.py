@@ -38,8 +38,9 @@ class EmailInfo(metaclass=SingletonMeta):
     smtp_host: str
     smtp_port: int
 
-    user_from: str
-    password_from: str
+    user: str
+    password: str
+    send_from: str
 
     user_to: str
 
@@ -66,7 +67,11 @@ class EmailInfo(metaclass=SingletonMeta):
         self.smtp_host = app_config['SERVER']['smtp_host']
         self.smtp_port = int(app_config['SERVER']['smtp_port'])
 
-        self.user_from = app_config['FROM']['user']
-        self.password_from = app_config['FROM']['password']
+        self.user = app_config['FROM']['user']
+        self.password = app_config['FROM']['password']
+        self.send_from = app_config['FROM']['send_from']
+
+        if self.send_from == '//SAME_AS_USER//':
+            self.send_from = self.user
 
         self.user_to = app_config['TO']['user']

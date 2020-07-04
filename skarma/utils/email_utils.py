@@ -38,7 +38,7 @@ def send_email(to: str, subject: str, content: str):
     emi = EmailInfo()
 
     message = MIMEMultipart()
-    message['From'] = emi.user_from
+    message['From'] = emi.send_from
     message['To'] = to
     message['Subject'] = subject
 
@@ -48,11 +48,11 @@ def send_email(to: str, subject: str, content: str):
 
     session = SMTP(emi.smtp_host, emi.smtp_port)
     session.starttls()
-    session.login(emi.user_from, emi.password_from)
+    session.login(emi.user, emi.password)
 
     blog.debug('Sending email: created SMTP session')
 
     body = message.as_string()
-    session.sendmail(emi.user_from, to, body)
+    session.sendmail(emi.send_from, to, body)
 
     blog.debug('Email successfully sent')
