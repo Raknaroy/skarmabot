@@ -27,6 +27,7 @@ from typing import Optional
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager, catch_error
+from skarma.utils import lang_tools
 from skarma.karma import KarmaManager, UsernamesManager, NoSuchUser, KarmaRangesManager
 from skarma.announcements import ChatsManager
 
@@ -166,6 +167,10 @@ def gen_error(update, context):
         context.bot.send_message(chat_id=chat_id, text='Только администратор может сгенерировать тестовую ошибку')
 
 
+def str_find_penultimate(text: str, pattern: str) -> int:
+    return text.rfind(pattern, 0, text.rfind(pattern))
+
+
 @catch_error
 def level(update, context):
     """Send user information about his karma level"""
@@ -183,16 +188,19 @@ def level(update, context):
     message = f'Ваш уровень кармы: {kr.name} [{kr.min_range}, {kr.max_range}]\n\n'
 
     if kr.enable_plus:
-        message += f'Вы можете прибавлять +{kr.plus_value} едениц(ы/у) кармы\n'
+        message += f'Вы можете прибавлять ' \
+                   f'+{lang_tools.russian_case_nums(kr.plus_value, "еденицу", "еденицы", "едениц")} кармы\n'
     else:
         message += f'Вы не можете прибавлять карму :(\n'
 
     if kr.enable_minus:
-        message += f'Вы можете отнимать -{kr.minus_value} едениц(ы/у) кармы\n'
+        message += f'Вы можете отнимать ' \
+                   f'-{lang_tools.russian_case_nums(kr.minus_value, "еденицу", "еденицы", "едениц")} кармы\n'
     else:
         message += f'Вы не можете отнимать карму :(\n'
 
-    message += f'Вы можете изменять карму {kr.day_max} раз в день и раз в '
+    message += f'Вы можете изменять карму {lang_tools.russian_case_nums(int(kr.day_max), "раз", "раза", "раз")}' \
+               f' в день и раз в '
 
     c = 0
     seconds = int(kr.timeout.seconds)
@@ -203,10 +211,10 @@ def level(update, context):
 
         if weeks != 0:
             c += 1
-            message += f'{weeks} недель '
+            message += lang_tools.russian_case_nums(weeks, 'неделю ', 'недели ', 'недель ')
         if days_ != 0:
             c += 1
-            message += f'{days_} дней '
+            message += lang_tools.russian_case_nums(days_, 'дней ', 'дня ', 'дней ')
     if seconds != 0:
         hours = seconds // 3600
         minutes = (seconds % 3600) // 60
@@ -214,18 +222,18 @@ def level(update, context):
 
         if hours != 0:
             c += 1
-            message += f'{hours} часов '
+            message += lang_tools.russian_case_nums(hours, 'час ', 'часа ', 'часов ')
         if minutes != 0:
             c += 1
-            message += f'{minutes} минут '
+            message += lang_tools.russian_case_nums(minutes, 'минуту ', 'минуты ', 'минут ')
         if seconds_ != 0:
             c += 1
-            message += f'{seconds_} секунд '
+            message += lang_tools.russian_case_nums(seconds_, 'секунду ', 'секунды ', 'секунд ')
 
     message = message[:-1]
-    lst_spc_i = message.rindex(' ')
+    lst_spc_i = str_find_penultimate(message, ' ')
     if c > 2:  # yes, >, not >=
-        message = message[:lst_spc_i-1] + 'и ' + message[lst_spc_i-1:]
+        message = message[:lst_spc_i+1] + 'и ' + message[lst_spc_i+1:]
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
