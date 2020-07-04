@@ -230,3 +230,19 @@ def start(update, context):
     chat_id = update.effective_chat.id
     logging.getLogger('botlog').info(f'User with id #{chat_id} will be added to database after running /start')
     ChatsManager().add_new_chat(chat_id)
+
+
+@catch_error
+def clear_errors(update, context):
+    """Clear all errors in DB"""
+
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+    logging.getLogger('botlog').info(f'Deleting all errors! Asked by user #{user_id} in chat #{chat_id}')
+
+    if user_id in admins:
+        ErrorManager().clear_all_errors()
+        context.bot.send_message(chat_id=chat_id, text='All errors successfully deleted')
+    else:
+        logging.getLogger('botlog').debug('Errors could bot be deleted: access denied. Check admins list')
+        context.bot.send_message(chat_id=chat_id, text='Только администратор может удалить все ошибки')

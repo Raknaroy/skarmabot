@@ -81,6 +81,12 @@ class ErrorManager(metaclass=SingletonMeta):
 
         return res_[0][0]
 
+    def clear_all_errors(self) -> None:
+        """Clear all reported errors from database"""
+        self.blog.debug('Removing all errors from DB')
+
+        self._dbu.run_single_update_query('delete from errors')
+
     @staticmethod
     def _report_via_email(name: str, stacktrace: str) -> None:
         """Send error report to email. See email.conf for more information"""
