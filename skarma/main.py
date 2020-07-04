@@ -57,7 +57,8 @@ def setup_logging_ui() -> None:
     if os.name == 'nt':
         LOGGING_DIR = LOGGING_DIR.replace('%AppData%', os.getenv('APPDATA'))
 
-        os.makedirs(LOGGING_DIR)
+        if not path.exists(LOGGING_DIR):
+            os.makedirs(LOGGING_DIR)
 
     if not path.exists(LOGGING_DIR) or not path.isdir(LOGGING_DIR) or not os.access(LOGGING_DIR, os.W_OK):
         ErrorManager().report_error("Logging problem", "Can't access logging directory. Logging will be turned off.")
