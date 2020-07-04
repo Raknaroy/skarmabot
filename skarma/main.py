@@ -230,3 +230,5 @@ if __name__ == "__main__":
 
     blog.info('Starting polling')
     updater.start_polling()
+
+    updater.idle()
