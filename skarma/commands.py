@@ -192,7 +192,40 @@ def level(update, context):
     else:
         message += f'Вы не можете отнимать карму :(\n'
 
-    message += f'Вы можете изменять карму {kr.day_max} раз в день'
+    message += f'Вы можете изменять карму {kr.day_max} раз в день и раз в '
+
+    c = 0
+    seconds = int(kr.timeout.seconds)
+    days = int(kr.timeout.days)
+    if days != 0:
+        weeks = days // 7
+        days_ = days % 7
+
+        if weeks != 0:
+            c += 1
+            message += f'{weeks} недель '
+        if days_ != 0:
+            c += 1
+            message += f'{days_} дней '
+    if seconds != 0:
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds_ = (seconds % 60)
+
+        if hours != 0:
+            c += 1
+            message += f'{hours} часов '
+        if minutes != 0:
+            c += 1
+            message += f'{minutes} минут '
+        if seconds_ != 0:
+            c += 1
+            message += f'{seconds_} секунд '
+
+    message = message[:-1]
+    lst_spc_i = message.rindex(' ')
+    if c > 2:  # yes, >, not >=
+        message = message[:lst_spc_i-1] + 'и ' + message[lst_spc_i-1:]
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
