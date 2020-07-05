@@ -48,7 +48,9 @@ class DBUtils(metaclass=SingletonMeta):
 
     def setup_new_connection(self, connection_id: int = 0):
         self.blog.info(f'Initializing database managing connection with id {connection_id}')
+        SingletonMeta._instances_lock.release()
         dbi = DBInfo()
+        SingletonMeta._instances_lock.acquire()
 
         self._botdb[connection_id] = mysql.connector.connect(
             host=dbi.host,
