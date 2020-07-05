@@ -20,8 +20,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
-from telegram import LabeledPrice
+import logging
 
+from telegram import LabeledPrice
 from telegram.ext import ConversationHandler
 
 from skarma.utils.errorm import catch_error
@@ -30,6 +31,7 @@ from skarma.donate_info import DonateInfo
 AMOUNT = range(1)
 
 _donate_info = DonateInfo()
+blog = logging.getLogger('botlog')
 
 
 @catch_error
@@ -41,11 +43,17 @@ def donate_ask_d(update, context):
 def donate_ask(update, context, debug=False):
     enabled = _donate_info.test_enabled if debug else _donate_info.enabled
 
+    blog.info(f'Asked for donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}')
+
     if 'group' in update.effective_chat.type:
+        blog.info(f'Canceled donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}:'
+                  f' donations not available in group chats')
         update.message.reply_text('Увы, донатики работают только в личных сообщениях с ботом')
         return ConversationHandler.END
 
     if not enabled:
+        blog.info(f'Canceled donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}:'
+                  f' donations not available')
         update.message.reply_text('Увы, донатики пока недоступны, попробуйте позже!')
         return ConversationHandler.END
 
@@ -66,6 +74,9 @@ def donate(update, context, debug=False):
     chat_id = update.effective_chat.id
     text = update.message.text
 
+    blog.info(f'Donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}:'
+              f' user wants to pay ${text}')
+
     enabled = _donate_info.test_enabled if debug else _donate_info.enabled
     payload = _donate_info.test_payload if debug else _donate_info.payload
     provider_token = _donate_info.test_provider_token if debug else _donate_info.provider_token
@@ -76,13 +87,19 @@ def donate(update, context, debug=False):
     try:
         price = float(text.replace(',', '.'))
     except ValueError:
+        blog.info(f'Donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}:'
+                  f' invalid price: ${text}')
         update.message.reply_text('Эй, такого числа нет! Попробуйте снова')
         return AMOUNT
 
     if price < 1:
+        blog.info(f'Donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}:'
+                  f' price too low: ${text}')
         update.message.reply_text('Слишком маленькая сумма, мы принимает донаты от $1. Попробуйте снова!')
         return AMOUNT
     elif price > 10000:
+        blog.info(f'Donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}:'
+                  f' price too high: ${text}')
         update.message.reply_text('Ого, какотелей большой! Мы принимаем максимум $10,000. Попробуйте снова!')
         return AMOUNT
 
@@ -92,6 +109,8 @@ def donate(update, context, debug=False):
     # price * 100 so as to include 2 decimal points
     prices = [LabeledPrice("Donate", int(price * 100))]
 
+    blog.info(f'Donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}:'
+              f' sending invoice...')
     context.bot.send_invoice(chat_id, title, description, payload,
                              provider_token, start_parameter, currency, prices)
 
@@ -100,6 +119,8 @@ def donate(update, context, debug=False):
 
 @catch_error
 def cancel(update, _):
+    blog.info(f'Canceled donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}:'
+              f' asked by user (/cancel)')
     update.message.reply_text('Оке(')
 
     return ConversationHandler.END
@@ -107,4 +128,5 @@ def cancel(update, _):
 
 @catch_error
 def finish_donate(update, _):
+    blog.info(f'Finished donation by user #{update.effective_user.id} in chat #{update.effective_chat.id}')
     update.message.reply_text("Пасиб за донат 🥰🥰")
