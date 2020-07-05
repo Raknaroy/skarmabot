@@ -23,14 +23,17 @@
 import datetime
 import logging
 import codecs
+import operator
 
 from math import inf
 from configparser import ConfigParser, SectionProxy
 from os import path
-from typing import List
+from typing import List, Tuple, Optional
 from dataclasses import dataclass
+from deprecated import deprecated
 
 from skarma.utils.singleton import SingletonMeta
+from skarma.utils import algo
 
 
 class ConfigParseError(Exception):
@@ -55,6 +58,7 @@ class KarmaRange:
     day_max: float
     timeout: datetime.timedelta
 
+    @deprecated('Use binary search on sorted array instead')
     def karma_in_range(self, karma: float) -> bool:
         """Check if user with given karma fits that karma range"""
 
@@ -109,6 +113,14 @@ class KarmaRange:
             raise ConfigParseError(msg)
         return obj
 
+    def __lt__(self, other: int) -> bool:
+        """Check that int is less than karma range min"""
+        return other < self.min_range
+
+    def __eq__(self, other: int) -> bool:
+        """Check that int is in that karma range"""
+        return self.min_range <= other <= self.max_range
+
 
 class KarmaRangesManager(metaclass=SingletonMeta):
     """Checks user's karma range. Karma ranges are loaded from karma.conf"""
@@ -121,7 +133,11 @@ class KarmaRangesManager(metaclass=SingletonMeta):
     ranges: List[KarmaRange] = []
 
     def __init__(self) -> None:
-        """Parse all sections of karma.conf"""
+        """
+        Parse all sections of karma.conf
+
+        If any karma ranges overlap, ConfigParseError will be raised.
+        """
 
         self.blog.info('Starting parsing karma.conf, that is located in ' + self.KARMA_CONFIG_FILE)
 
@@ -138,27 +154,41 @@ class KarmaRangesManager(metaclass=SingletonMeta):
         for section in app_config.sections():
             self.ranges.append(KarmaRange.range_from_parsed_config(app_config[section]))
 
+        self.ranges.sort(key=operator.attrgetter('min_range'))
+
+        res = self._static_ranges_check()
+        if res is not None:
+            msg = f'Ranges "{res[0]}" and "{res[1]}" overlap'
+            self.blog.fatal(msg)
+            raise ConfigParseError(msg)
+
         self.default_range = KarmaRange.range_from_parsed_config(app_config['DEFAULT'])
 
     def get_range_by_karma(self, karma: int) -> KarmaRange:
         """
         Return KarmaRange object with parsed karma range for given karma.
-        If no or several ranges contain given karma level, ConfigParseError will be raised.
+        If no ranges contain given karma level, ConfigParseError will be raised.
         """
 
         self.blog.debug(f'Parsing range for karma: {karma}')
 
-        needed_range = None
+        try:
+            return self.ranges[algo.binary_search(karma, self.ranges)]
+        except algo.NotFound:
+            msg = f'No ranges contain karma: {karma}'
+            self.blog.fatal(msg)
+            raise ConfigParseError(msg)
 
-        for range_ in self.ranges:
-            if range_.karma_in_range(karma):
-                if needed_range is None:
-                    needed_range = range_
-                else:
-                    msg = f'Several ranges fit karma: {karma}'
-                    self.blog.fatal(msg)
-                    raise ConfigParseError(msg)
+    def _static_ranges_check(self) -> Optional[Tuple[str, str]]:
+        """
+        Check that ranges does not overlap.
 
-        if needed_range is None:
-            return self.default_range
-        return needed_range
+        returns None, if ranges does not overlap.
+        if ranges overlap, returns Tuple which contains names of ranges, that overlap.
+        """
+
+        for i in range(1, len(self.ranges)):
+            if self.ranges[i].min_range <= self.ranges[i-1].max_range:
+                return self.ranges[i].name, self.ranges[i - 1].name
+
+        return None

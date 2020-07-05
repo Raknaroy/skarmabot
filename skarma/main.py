@@ -32,6 +32,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 
 from skarma import commands, message_parser, donate
 from skarma.app_info import AppInfo
+from skarma.karma_config_parser import KarmaRangesManager
 from skarma.utils.errorm import ErrorManager
 
 LOGGING_DIR: str
@@ -138,6 +139,8 @@ if __name__ == "__main__":
     blog.info('Starting bot')
 
     bot_info = AppInfo()
+
+    KarmaRangesManager()  # static check for overlap
 
     blog.debug('Parsing arguments')
     parser = argparse.ArgumentParser(description=bot_info.app_description)
