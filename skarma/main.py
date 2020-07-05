@@ -160,50 +160,39 @@ if __name__ == "__main__":
     dispatcher = updater.dispatcher
     blog.info('Created updater and dispatcher')
 
-    version_handler = CommandHandler('version', commands.version)
-    dispatcher.add_handler(version_handler)
+    dispatcher.add_handler(CommandHandler('version', commands.version))
     blog.info('Added handler for /version command')
 
     if DEBUG_MODE:
-        status_handler = CommandHandler('status', commands.status)
-        dispatcher.add_handler(status_handler)
+        dispatcher.add_handler(CommandHandler('status', commands.status))
         blog.info('Added handler for /status command')
 
-    report_handler = CommandHandler('bug_report', commands.bug_report)
-    dispatcher.add_handler(report_handler)
+    dispatcher.add_handler(CommandHandler('bug_report', commands.bug_report))
     blog.info('Added handler for /bug_report command')
 
-    support_handler = CommandHandler('support', commands.support)
-    dispatcher.add_handler(support_handler)
+    dispatcher.add_handler(CommandHandler('support', commands.support))
     blog.info('Added handler for /support command')
 
-    karma_handler = CommandHandler('my_karma', commands.my_karma)
-    dispatcher.add_handler(karma_handler)
+    dispatcher.add_handler(CommandHandler('my_karma', commands.my_karma))
     blog.info('Added handler for /my_karma command')
 
-    start_handler = CommandHandler('start', commands.start)
-    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(CommandHandler('start', commands.start))
     blog.info('Added handler for /start command')
 
-    top_handler = CommandHandler('top', commands.top)
-    dispatcher.add_handler(top_handler)
+    dispatcher.add_handler(CommandHandler('top', commands.top))
     blog.info('Added handler for /top command')
 
-    antitop_handler = CommandHandler('antitop', commands.antitop)
-    dispatcher.add_handler(antitop_handler)
+    dispatcher.add_handler(CommandHandler('antitop', commands.antitop))
     blog.info('Added handler for /antitop command')
 
     if DEBUG_MODE:
-        gen_error_handler = CommandHandler('gen_error', commands.gen_error)
-        dispatcher.add_handler(gen_error_handler)
+        dispatcher.add_handler(CommandHandler('gen_error', commands.gen_error))
         blog.info('Added handler for /gen_error command')
 
-    level_handler = CommandHandler('level', commands.level)
-    dispatcher.add_handler(level_handler)
+    dispatcher.add_handler(CommandHandler('level', commands.level))
     blog.info('Added handler for /level command')
 
-    help_handler = CommandHandler('help', commands.hhelp)
-    dispatcher.add_handler(help_handler)
+    dispatcher.add_handler(CommandHandler('help', commands.hhelp))
     blog.info('Added handler for /help command')
 
     dispatcher.add_handler(ConversationHandler(
@@ -218,22 +207,18 @@ if __name__ == "__main__":
     dispatcher.add_handler(MessageHandler(Filters.successful_payment, donate.finish_donate))
 
     if DEBUG_MODE:
-        clear_errors_handler = CommandHandler('clear_errors', commands.clear_errors)
-        dispatcher.add_handler(clear_errors_handler)
+        dispatcher.add_handler(CommandHandler('clear_errors', commands.clear_errors))
         blog.info('Added handler for /clear_errors command')
 
     if DEBUG_MODE:
-        chat_id_handler = CommandHandler('chat_id', commands.chat_id_)
-        dispatcher.add_handler(chat_id_handler)
+        dispatcher.add_handler(CommandHandler('chat_id', commands.chat_id_))
         blog.info('Added handler for /chat_id command')
 
-    message_handler = MessageHandler(Filters.reply & Filters.group & (Filters.text | Filters.sticker)
-                                     & (~Filters.command), message_parser.message_handler)
-    dispatcher.add_handler(message_handler)
+    dispatcher.add_handler(MessageHandler(Filters.reply & Filters.group & (Filters.text | Filters.sticker)
+                                          & (~Filters.command), message_parser.message_handler))
     blog.info('Added handler for group reply messages')
 
-    migrate_handler = MessageHandler(Filters.all, message_parser.handle_group_migration_or_join)
-    dispatcher.add_handler(migrate_handler)
+    dispatcher.add_handler(MessageHandler(Filters.all, message_parser.handle_group_migration_or_join))
     blog.info('Added handler for group migration to supergroup or group join')
 
     blog.info('Starting announcements thread')
