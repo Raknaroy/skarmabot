@@ -21,6 +21,7 @@
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
 import logging
+import subprocess
 
 from os import path
 from configparser import ConfigParser
@@ -66,7 +67,10 @@ class AppInfo(metaclass=SingletonMeta):
         self.app_name = app_config['GENERAL']['bot_name']
         self.app_description = app_config['GENERAL']['bot_desc']
         self.app_version = app_config['GENERAL']['bot_version']
-        self.app_build = app_config['GENERAL']['bot_build']
+
+        git = subprocess.Popen(['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE,
+                               cwd=path.join(path.dirname(path.abspath(__file__)), '../'))
+        self.app_build = git.communicate()[0].decode('utf-8')
 
         self.app_token = app_config['TOKENS']['token']
         self.app_dev_token = app_config['TOKENS']['dev_token']
