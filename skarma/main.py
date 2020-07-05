@@ -28,9 +28,9 @@ import sys
 
 from os import path
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
-from skarma import commands, message_parser
+from skarma import commands, message_parser, donate
 from skarma.app_info import AppInfo
 from skarma.utils.errorm import ErrorManager
 
@@ -206,6 +206,17 @@ if __name__ == "__main__":
     dispatcher.add_handler(help_handler)
     blog.info('Added handler for /help command')
 
+    dispatcher.add_handler(ConversationHandler(
+        entry_points=[CommandHandler('donate', donate.donate_ask if not DEBUG_MODE else donate.donate_ask_d)],
+        states={
+            donate.AMOUNT: [MessageHandler(Filters.text & (~Filters.command),
+                                           donate.donate if not DEBUG_MODE else donate.donate_d)]
+        },
+
+        fallbacks=[CommandHandler('cancel', donate.cancel)]
+    ))
+    dispatcher.add_handler(MessageHandler(Filters.successful_payment, donate.finish_donate))
+
     if DEBUG_MODE:
         clear_errors_handler = CommandHandler('clear_errors', commands.clear_errors)
         dispatcher.add_handler(clear_errors_handler)
@@ -216,7 +227,8 @@ if __name__ == "__main__":
         dispatcher.add_handler(chat_id_handler)
         blog.info('Added handler for /chat_id command')
 
-    message_handler = MessageHandler(Filters.reply & Filters.group & (Filters.text | Filters.sticker) & (~Filters.command), message_parser.message_handler)
+    message_handler = MessageHandler(Filters.reply & Filters.group & (Filters.text | Filters.sticker)
+                                     & (~Filters.command), message_parser.message_handler)
     dispatcher.add_handler(message_handler)
     blog.info('Added handler for group reply messages')
 
