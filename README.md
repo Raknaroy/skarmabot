@@ -2,9 +2,9 @@
 Yet another karma bot for telegram groups.
 
 ## Access bot
-Bot is accessible on @skarmabot, but in test mode. I can't promise that it'll be stable. Wait for first stable release)
+Bot is accessible on @skarmabot
 ## Download latest version
-You can download SKarma 0.1.0-rc.1 source [here](https://github.com/sandsbit/skarmabot/releases/tag/v0.1.0-rc.1)
+You can download SKarma 0.1.0 source [here](https://github.com/sandsbit/skarmabot/releases/tag/v0.1.0)
 ## Features
 * Karma :)
 * Karma levels, each have own name and rights
