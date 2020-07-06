@@ -20,25 +20,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import print_function
 
-from os import path
-from sys import stderr
-from configparser import ConfigParser
-
-if __name__ == "__main__":
-    config_file_path = path.join(path.dirname(path.abspath(__file__)), '../../config/app.conf')
-
-    if not path.isfile(config_file_path):
-        print("Couldn't find config file path:", config_file_path, file=stderr)
-        exit(2)
-
-    app_config = ConfigParser()
-    app_config.read(config_file_path)
-
-    build = int(app_config['GENERAL']['bot_build'], 16)
-    build += 1
-    app_config['GENERAL']['bot_build'] = "{0:0{1}x}".format(build, 5)
-
-    with open(config_file_path, 'w') as f:
-        app_config.write(f)
+def russian_case_nums(num: int, imen: str, rod: str, rod_mnog: str) -> str:
+    if 10 <= num <= 20:
+        return f'{num} {rod_mnog}'
+    elif num % 10 == 1:
+        return f'{num} {imen}'
+    elif num % 10 in [2, 3, 4]:
+        return f'{num} {rod}'
+    else:
+        return f'{num} {rod_mnog}'

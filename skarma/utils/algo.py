@@ -20,39 +20,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with SKarma. If not, see <https://www.gnu.org/licenses/>.
 
-import logging
-
-from smtplib import SMTP
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
-from skarma.email_info import EmailInfo
+from typing import List
 
 
-def send_email(to: str, subject: str, content: str):
-    """Send email from email that is configured in email.conf"""
+class NotFound(Exception):
+    pass
 
-    blog = logging.getLogger('botlog')
-    blog.info(f'Sending email "{subject}" to {to}')
 
-    emi = EmailInfo()
+def binary_search(obj, lst: List) -> int:
+    """Raise NotFound if obj is not in lst"""
+    lst_len = len(lst)
+    if lst_len == 0:
+        raise NotFound
 
-    message = MIMEMultipart()
-    message['From'] = emi.send_from
-    message['To'] = to
-    message['Subject'] = subject
-
-    message.attach(MIMEText(content, 'plain'))
-
-    blog.debug('Sending email: ended creating message')
-
-    session = SMTP(emi.smtp_host, emi.smtp_port)
-    session.starttls()
-    session.login(emi.user, emi.password)
-
-    blog.debug('Sending email: created SMTP session')
-
-    body = message.as_string()
-    session.sendmail(emi.send_from, to, body)
-
-    blog.debug('Email successfully sent')
+    pos = int(lst_len / 2)
+    if lst[pos] == obj:
+        return pos
+    elif lst[pos] < obj:
+        return binary_search(obj, lst[0:pos])
+    else:
+        return pos + 1 + binary_search(obj, lst[pos+1:])

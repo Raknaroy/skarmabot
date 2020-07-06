@@ -28,21 +28,38 @@ import sys
 
 from os import path
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
-from skarma import commands, message_parser
+from skarma import commands, message_parser, donate
 from skarma.app_info import AppInfo
+from skarma.karma_config_parser import KarmaRangesManager
 from skarma.utils.errorm import ErrorManager
 
-LOGGING_DIR = '/var/log/skarma'
+LOGGING_DIR: str
+
+if os.name == 'nt':
+    LOGGING_DIR = r'%AppData%\skarma\logs'  # only %AppData% can be used in path, other envs won't work
+else:
+    LOGGING_DIR = '/var/log/skarma'
 
 
 def setup_logging_ui() -> None:
     """
+    UNIX:
     Setup logging into /var/log. If app don't have permission
-    to access /var/log/skarma, than it will launch chmod to get
-    it. Entering sudo password may be needed.
+    to access /var/log/skarma, than error message will be printed.
+
+    WINDOWS:
+    Same as UNIX, but logging into %AppData%\skarma\logs.
     """
+
+    global LOGGING_DIR
+
+    if os.name == 'nt':
+        LOGGING_DIR = LOGGING_DIR.replace('%AppData%', os.getenv('APPDATA'))
+
+        if not path.exists(LOGGING_DIR):
+            os.makedirs(LOGGING_DIR)
 
     if not path.exists(LOGGING_DIR) or not path.isdir(LOGGING_DIR) or not os.access(LOGGING_DIR, os.W_OK):
         ErrorManager().report_error("Logging problem", "Can't access logging directory. Logging will be turned off.")
@@ -115,9 +132,6 @@ if __name__ == "__main__":
     if sys.version_info < (3, 7):
         print('Invalid python version. Use python 3.7 or newer')
 
-    if os.name != 'posix':
-        print('Invalid os! Use any UNIX or Linux machine, including macOS')
-
     setup_logging_ui()
 
     blog = logging.getLogger('botlog')
@@ -125,6 +139,8 @@ if __name__ == "__main__":
     blog.info('Starting bot')
 
     bot_info = AppInfo()
+
+    KarmaRangesManager()  # static check for overlap
 
     blog.debug('Parsing arguments')
     parser = argparse.ArgumentParser(description=bot_info.app_description)
@@ -147,58 +163,65 @@ if __name__ == "__main__":
     dispatcher = updater.dispatcher
     blog.info('Created updater and dispatcher')
 
-    version_handler = CommandHandler('version', commands.version)
-    dispatcher.add_handler(version_handler)
+    dispatcher.add_handler(CommandHandler('version', commands.version))
     blog.info('Added handler for /version command')
 
     if DEBUG_MODE:
-        status_handler = CommandHandler('status', commands.status)
-        dispatcher.add_handler(status_handler)
+        dispatcher.add_handler(CommandHandler('status', commands.status))
         blog.info('Added handler for /status command')
 
-    report_handler = CommandHandler('bug_report', commands.bug_report)
-    dispatcher.add_handler(report_handler)
+    dispatcher.add_handler(CommandHandler('bug_report', commands.bug_report))
     blog.info('Added handler for /bug_report command')
 
-    support_handler = CommandHandler('support', commands.support)
-    dispatcher.add_handler(support_handler)
+    dispatcher.add_handler(CommandHandler('support', commands.support))
     blog.info('Added handler for /support command')
 
-    karma_handler = CommandHandler('my_karma', commands.my_karma)
-    dispatcher.add_handler(karma_handler)
+    dispatcher.add_handler(CommandHandler('my_karma', commands.my_karma))
     blog.info('Added handler for /my_karma command')
 
-    start_handler = CommandHandler('start', commands.start)
-    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(CommandHandler('start', commands.start))
     blog.info('Added handler for /start command')
 
-    top_handler = CommandHandler('top', commands.top)
-    dispatcher.add_handler(top_handler)
+    dispatcher.add_handler(CommandHandler('top', commands.top))
     blog.info('Added handler for /top command')
 
-    antitop_handler = CommandHandler('antitop', commands.antitop)
-    dispatcher.add_handler(antitop_handler)
+    dispatcher.add_handler(CommandHandler('antitop', commands.antitop))
     blog.info('Added handler for /antitop command')
 
     if DEBUG_MODE:
-        gen_error_handler = CommandHandler('gen_error', commands.gen_error)
-        dispatcher.add_handler(gen_error_handler)
+        dispatcher.add_handler(CommandHandler('gen_error', commands.gen_error))
         blog.info('Added handler for /gen_error command')
 
-    level_handler = CommandHandler('level', commands.level)
-    dispatcher.add_handler(level_handler)
+    dispatcher.add_handler(CommandHandler('level', commands.level))
     blog.info('Added handler for /level command')
 
-    help_handler = CommandHandler('help', commands.hhelp)
-    dispatcher.add_handler(help_handler)
+    dispatcher.add_handler(CommandHandler('help', commands.hhelp))
     blog.info('Added handler for /help command')
 
-    message_handler = MessageHandler(Filters.reply & Filters.group & Filters.text & (~Filters.command), message_parser.message_handler)
-    dispatcher.add_handler(message_handler)
+    dispatcher.add_handler(ConversationHandler(
+        entry_points=[CommandHandler('donate', donate.donate_ask if not DEBUG_MODE else donate.donate_ask_d)],
+        states={
+            donate.AMOUNT: [MessageHandler(Filters.text & (~Filters.command),
+                                           donate.donate if not DEBUG_MODE else donate.donate_d)]
+        },
+
+        fallbacks=[CommandHandler('cancel', donate.cancel)]
+    ))
+    dispatcher.add_handler(MessageHandler(Filters.successful_payment, donate.finish_donate))
+
+    if DEBUG_MODE:
+        dispatcher.add_handler(CommandHandler('clear_errors', commands.clear_errors))
+        blog.info('Added handler for /clear_errors command')
+
+    if DEBUG_MODE:
+        dispatcher.add_handler(CommandHandler('chat_id', commands.chat_id_))
+        blog.info('Added handler for /chat_id command')
+
+    dispatcher.add_handler(MessageHandler(Filters.reply & Filters.group & (Filters.text | Filters.sticker)
+                                          & (~Filters.command), message_parser.message_handler))
     blog.info('Added handler for group reply messages')
 
-    migrate_handler = MessageHandler(Filters.all, message_parser.handle_group_migration_or_join)
-    dispatcher.add_handler(migrate_handler)
+    dispatcher.add_handler(MessageHandler(Filters.all, message_parser.handle_group_migration_or_join))
     blog.info('Added handler for group migration to supergroup or group join')
 
     blog.info('Starting announcements thread')
@@ -207,3 +230,5 @@ if __name__ == "__main__":
 
     blog.info('Starting polling')
     updater.start_polling()
+
+    updater.idle()
