@@ -22,7 +22,7 @@
 
 import logging
 
-from typing import Optional
+from typing import Optional, List, Tuple
 from os import path
 
 from skarma.app_info import AppInfo
@@ -107,6 +107,22 @@ def my_karma(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=f'Ваша карма: {karma}')
 
 
+def process_top(bd_resp: List[Tuple[int, int]], smile=':(') -> str:
+    message = ''
+
+    if len(bd_resp) == 0:
+        message += f'В ТОПе никого нет {smile}'
+
+    for user_id, karma in bd_resp:
+        try:
+            user_name = UsernamesManager().get_username_by_id(user_id)
+        except NoSuchUser:
+            user_name = f'Unnamed user ({user_id})'
+        message += f'{user_name}: {karma}\n'
+
+    return message
+
+
 @catch_error
 def top(update, context):
     """Print top 5 of chat"""
@@ -122,12 +138,7 @@ def top(update, context):
     message = 'ТОП-5 людей с лучшей кармой:\n\n'
 
     top_ = KarmaManager().get_ordered_karma_top(chat_id, 5)
-    for user_id, karma in top_:
-        try:
-            user_name = UsernamesManager().get_username_by_id(user_id)
-        except NoSuchUser:
-            user_name = f'Unnamed user ({user_id})'
-        message += f'{user_name}: {karma}\n'
+    message += process_top(top_)
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
@@ -147,12 +158,7 @@ def antitop(update, context):
     message = 'ТОП-5 людей с худшей кармой:\n\n'
 
     top_ = KarmaManager().get_ordered_karma_top(chat_id, 5, biggest=False)
-    for user_id, karma in top_:
-        try:
-            user_name = UsernamesManager().get_username_by_id(user_id)
-        except NoSuchUser:
-            user_name = f'Unnamed user ({user_id})'
-        message += f'{user_name}: {karma}\n'
+    message += process_top(top_, ':)')
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
