@@ -172,6 +172,23 @@ class StatsManager(metaclass=SingletonMeta):
             self.blog.error(msg)
             raise DatabaseError(msg)
 
+    def reset_user_reset_last_karma_change(self, chat_id: int, user_id: int) -> None:
+        """Reset user last karma change time and decrease karma change counter"""
+        self.blog.info(f'Resetting last karma change for user #{user_id} in chat #{chat_id}')
+
+        last_karma_change_time = self.get_last_karma_change_time(chat_id, user_id)
+
+        if (last_karma_change_time is None) or (datetime.datetime.utcnow().date() != last_karma_change_time.date()):
+            self.blog.debug(f'Last karma change of user #{user_id} in chat #{chat_id} was not today, karma counter '
+                            f'will not be changed')
+            self.db.run_single_update_query("UPDATE stats SET last_karma_change = '1000-01-01 00:00:00' "
+                                            "WHERE user_id = %s and chat_id = %s", (user_id, chat_id))
+        else:
+            self.db.run_single_update_query("UPDATE stats SET last_karma_change = '1000-01-01 00:00:00', "
+                                            "today_karma_changes = today_karma_changes - 1 "
+                                            "WHERE user_id = %s and chat_id = %s", (user_id, chat_id))
+
+
 
 class KarmaManager(metaclass=SingletonMeta):
     """Api to work with karma table in database"""

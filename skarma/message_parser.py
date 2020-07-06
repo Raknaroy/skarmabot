@@ -26,7 +26,8 @@ import json
 
 from threading import Thread
 from enum import Enum
-from typing import List
+from typing import List, Dict, Tuple
+from datetime import datetime
 from os import path
 
 from telegram import Bot
@@ -153,9 +154,14 @@ def _parse_message(msg: str) -> ParserResult:
     return ParserResult.NOTHING
 
 
+# key - tuple of chat and user IDs. value - id of user whose karma was changed, change value and change timestamp
+last_actions: Dict[Tuple[int, int], Tuple[int, int, datetime]] = {}
+
+
 @catch_error
 def message_handler(update, context):
     """Parse message that change someone's karma"""
+    global last_actions
 
     if not hasattr(update.message, 'reply_to_message'):
         return
@@ -202,11 +208,13 @@ def message_handler(update, context):
 
             if parse_msg == ParserResult.RAISE:
                 km.increase_user_karma(chat_id, user_id, change_value)
+                last_actions[(chat_id, from_user_id)] = (user_id, change_value, datetime.utcnow())
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text=f'+{change_value} к карме {user_name}\n'
                                               f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
             else:
                 km.decrease_user_karma(chat_id, user_id, change_value)
+                last_actions[(chat_id, from_user_id)] = (user_id, -change_value, datetime.utcnow())
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text=f'-{change_value} к карме {user_name}\n'
                                               f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
@@ -242,3 +250,31 @@ def handle_group_migration_or_join(update, context):
             tables = ['chats', 'karma', 'stats']
             for table in tables:
                 db.run_single_update_query(f'update {table} set chat_id = %s where chat_id = %s', (new_chat_id, old_chat_id))
+
+
+@catch_error
+def cancel_command(update, context):
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+
+    logging.getLogger('botlog').info(f'Canceling last action of user #{user_id} in chat #{chat_id}')
+
+    if (chat_id, user_id) not in last_actions:
+        context.bot.send_message(chat_id=chat_id, text='Нечего отменять :/')
+        return
+
+    user_change_id, change_value, timestamp = last_actions[(chat_id, user_id)]
+
+    if (timestamp.utcnow() - timestamp).total_seconds() > 2*60:
+        context.bot.send_message(chat_id=chat_id, text='Слишком поздно, отменять действия можно только в течение двух '
+                                                       'минут!')
+        return
+
+    km = KarmaManager()
+    um = UsernamesManager()
+
+    StatsManager().reset_user_reset_last_karma_change(chat_id, user_id)
+    km.change_user_karma(chat_id, user_change_id, -change_value)
+    context.bot.send_message(chat_id=chat_id, text=f'Ваше последние действие отменено, карма '
+                                                   f'{um.get_username_by_id(user_change_id)} снова составляет '
+                                                   f'{km.get_user_karma(chat_id, user_change_id)}')

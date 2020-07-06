@@ -201,6 +201,9 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('license', commands.license_))
     blog.info('Added handler for /license command')
 
+    dispatcher.add_handler(CommandHandler('cancel', message_parser.cancel_command))
+    blog.info('Added handler for /cancel command')
+
     dispatcher.add_handler(ConversationHandler(
         entry_points=[CommandHandler('donate', donate.donate_ask if not DEBUG_MODE else donate.donate_ask_d)],
         states={
