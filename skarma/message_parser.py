@@ -22,9 +22,12 @@
 
 import time
 import logging
+import json
 
 from threading import Thread
 from enum import Enum
+from typing import List
+from os import path
 
 from telegram import Bot
 from telegram.error import TimedOut, RetryAfter, Unauthorized
@@ -123,37 +126,17 @@ class ParserResult(Enum):
     LOWER = 2
 
 
-RAISE_COMMANDS = [
-    '+',
-    'плюс',
-    'согласен',
-    'именно',
-    'поддерживаю',
-    'красава',
-    'лучший',
-    'да ты ебаный волшебник',
-    'да ты ебаный гений',
-    'гениально',
-    'совершенно верно',
-    'верно',
-    'резонно',
-    'обьективно',
-    'рационально',
-    'умно',
-    '😍', '👍'
-]
+KARMA_CONF_FILE = 'karma_conf.json'
 
-LOWER_COMMANDS = [
-    '-',
-    'ты еблан',
-    'долбаеб?',
-    'херня',
-    'хрень',
-    'фигня',
-    'хуйня',
-    'иди нахуй',
-    '🙄', '🖕', '🙅‍', '🤦', '️👎', '😡', '😑', '😐'
-]
+KARMA_CONF_FILE = path.join(path.dirname(__file__), '../config/', KARMA_CONF_FILE)
+
+
+RAISE_COMMANDS: List[str]
+LOWER_COMMANDS: List[str]
+
+karma_conf = json.load(open(KARMA_CONF_FILE, encoding='utf-8'))
+RAISE_COMMANDS = karma_conf['raise']
+LOWER_COMMANDS = karma_conf['lower']
 
 
 def _parse_message(msg: str) -> ParserResult:
