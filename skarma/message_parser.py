@@ -157,11 +157,14 @@ def _parse_message(msg: str) -> ParserResult:
 # key - tuple of chat and user IDs. value - id of user whose karma was changed, change value and change timestamp
 last_actions: Dict[Tuple[int, int], Tuple[int, int, datetime]] = {}
 
+# key - tuple of chat and user IDs. value - id of user who decreased karma and change timestamp
+last_karma_minus: Dict[Tuple[int, int], List[Tuple[int, datetime]]] = {}
+
 
 @catch_error
 def message_handler(update, context):
     """Parse message that change someone's karma"""
-    global last_actions
+    global last_actions, last_karma_minus
 
     if not hasattr(update.message, 'reply_to_message'):
         return
@@ -198,6 +201,12 @@ def message_handler(update, context):
                                                                      parse_msg == ParserResult.RAISE)
 
         if change_code == KarmaManager.CHECK.OK:
+            if (chat_id, from_user_id) in last_karma_minus:
+                for who_changed_id, change_date in last_karma_minus[(chat_id, from_user_id)]:
+                    if who_changed_id == user_id and (datetime.utcnow() - change_date).total_seconds() <= 2*60:
+                        context.bot.send_message(chat_id=chat_id, text='Ух, какой вы мстительный!!!')
+                        return
+
             if MessagesManager().is_user_changed_karma_on_message(chat_id, from_user_id, message_id):
                 context.bot.send_message(chat_id=chat_id, text='Вы уже оценили данное сообщение')
                 return
@@ -215,6 +224,11 @@ def message_handler(update, context):
             else:
                 km.decrease_user_karma(chat_id, user_id, change_value)
                 last_actions[(chat_id, from_user_id)] = (user_id, -change_value, datetime.utcnow())
+
+                if (chat_id, user_id) not in last_karma_minus:
+                    last_karma_minus[(chat_id, user_id)] = []
+
+                last_karma_minus[(chat_id, user_id)].append((from_user_id, datetime.utcnow()))
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text=f'-{change_value} к карме {user_name}\n'
                                               f'Теперь карма {user_name} составляет {km.get_user_karma(chat_id, user_id)}')
