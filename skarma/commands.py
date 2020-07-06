@@ -23,6 +23,7 @@
 import logging
 
 from typing import Optional
+from os import path
 
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
@@ -30,6 +31,15 @@ from skarma.utils.errorm import ErrorManager, catch_error
 from skarma.utils import lang_tools
 from skarma.karma import KarmaManager, UsernamesManager, NoSuchUser, KarmaRangesManager
 from skarma.announcements import ChatsManager
+
+LICENSE_FILE = "copyinfo.txt"
+
+LICENSE_FILE = path.join(path.dirname(path.abspath(__file__)), '../config', LICENSE_FILE)
+
+license_str: str
+
+with open(LICENSE_FILE, encoding='utf-8') as f:
+    license_str = f.read()
 
 
 @catch_error
@@ -297,3 +307,15 @@ def chat_id_(update, context):
 
     logging.getLogger('botlog').info(f'Printing chat id in chat #{chat_id}')
     context.bot.send_message(chat_id=chat_id, text=f'Current chat id: {chat_id}')
+
+
+@catch_error
+def license_(update, context):
+    """Send information about bot status"""
+    logging.getLogger('botlog').info('Printing license info to chat with id ' + str(update.effective_chat.id))
+
+    ai = AppInfo()
+
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text=f'{ai.app_name} {ai.app_version} (build: {ai.app_build})\n\n'
+                                  f'{license_str}')
