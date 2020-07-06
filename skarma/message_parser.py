@@ -183,7 +183,11 @@ def message_handler(update, context):
     user_id = update.message.reply_to_message.from_user.id
     user_name = update.message.reply_to_message.from_user.name
     message_id = update.message.reply_to_message.message_id
-    text: str = update.message.text
+    text: str
+    if hasattr(update.message, 'effective_attachment') and hasattr(update.message.effective_attachment, 'emoji'):
+        text = update.message.effective_attachment.emoji
+    else:
+        text = update.message.text
 
     logging.getLogger('botlog').info(f'Checking reply message from user #{from_user_id} in chat #{chat_id}')
 

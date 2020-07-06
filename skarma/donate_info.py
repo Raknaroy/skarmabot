@@ -28,21 +28,22 @@ from configparser import ConfigParser
 from skarma.utils.singleton import SingletonMeta
 
 
-class EmailInfo(metaclass=SingletonMeta):
-    """Parse information from db.conf"""
+class DonateInfo(metaclass=SingletonMeta):
+    """Parse information from donate.conf"""
 
     blog = logging.getLogger('botlog')
 
-    EMIAL_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/email.conf')
+    DONATE_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/donate.conf')
 
-    smtp_host: str
-    smtp_port: int
+    test_enabled: bool
+    test_payload: str
+    test_provider_token: str
+    test_start_parameter: str
 
-    user: str
-    password: str
-    send_from: str
-
-    user_to: str
+    enabled: bool
+    payload: str
+    provider_token: str
+    start_parameter: str
 
     def __init__(self):
         """
@@ -51,27 +52,25 @@ class EmailInfo(metaclass=SingletonMeta):
         Raise FileNotFoundError if file doesn't exist
         """
 
-        self.blog.info('Creating new EmailInfo class instance')
-        self.blog.debug('Reading email info file from : ' + path.abspath(self.EMIAL_CONFIG_FILE))
+        self.blog.info('Creating new DonateInfo class instance')
+        self.blog.debug('Reading debug info file from : ' + path.abspath(self.DONATE_CONFIG_FILE))
 
-        if not path.isfile(self.EMIAL_CONFIG_FILE):
-            msg = "Couldn't find DB config file path: " + self.EMIAL_CONFIG_FILE
+        if not path.isfile(self.DONATE_CONFIG_FILE):
+            msg = "Couldn't find debug config file path: " + self.DONATE_CONFIG_FILE
             self.blog.error(msg)
             raise FileNotFoundError(msg)
 
         app_config = ConfigParser()
-        app_config.read(self.EMIAL_CONFIG_FILE)
+        app_config.read(self.DONATE_CONFIG_FILE)
 
-        self.blog.debug('Successfully read email config file')
+        self.blog.debug('Successfully debug config file')
 
-        self.smtp_host = app_config['SERVER']['smtp_host']
-        self.smtp_port = int(app_config['SERVER']['smtp_port'])
+        self.test_enabled = app_config['TEST'].getboolean('enabled')
+        self.test_payload = app_config['TEST']['payload']
+        self.test_provider_token = app_config['TEST']['provider_token']
+        self.test_start_parameter = app_config['TEST']['start_parameter']
 
-        self.user = app_config['FROM']['user']
-        self.password = app_config['FROM']['password']
-        self.send_from = app_config['FROM']['send_from']
-
-        if self.send_from == '//SAME_AS_USER//':
-            self.send_from = self.user
-
-        self.user_to = app_config['TO']['user']
+        self.enabled = app_config['RELEASE'].getboolean('enabled')
+        self.payload = app_config['RELEASE']['payload']
+        self.provider_token = app_config['RELEASE']['provider_token']
+        self.start_parameter = app_config['RELEASE']['start_parameter']
