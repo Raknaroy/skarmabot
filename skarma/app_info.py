@@ -25,6 +25,7 @@ import subprocess
 
 from os import path
 from configparser import ConfigParser
+from typing import List
 
 from skarma.utils.singleton import SingletonMeta
 
@@ -40,6 +41,7 @@ class AppInfo(metaclass=SingletonMeta):
     app_description: str
     app_version: str
     app_build: str
+    admins: List[int]
 
     app_token: str
     app_dev_token: str
@@ -67,6 +69,9 @@ class AppInfo(metaclass=SingletonMeta):
         self.app_name = app_config['GENERAL']['bot_name']
         self.app_description = app_config['GENERAL']['bot_desc']
         self.app_version = app_config['GENERAL']['bot_version']
+
+        admins_list_raw = app_config['GENERAL']['admins']
+        self.admins = list(map(int, admins_list_raw.strip().replace(' ', '').split()))
 
         git = subprocess.Popen(['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE,
                                cwd=path.join(path.dirname(path.abspath(__file__)), '../'))
