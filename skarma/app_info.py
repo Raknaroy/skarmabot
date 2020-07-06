@@ -70,7 +70,7 @@ class AppInfo(metaclass=SingletonMeta):
 
         git = subprocess.Popen(['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE,
                                cwd=path.join(path.dirname(path.abspath(__file__)), '../'))
-        self.app_build = git.communicate()[0].decode('utf-8')
+        self.app_build = git.communicate()[0].decode('utf-8').strip()
 
         self.app_token = app_config['TOKENS']['token']
         self.app_dev_token = app_config['TOKENS']['dev_token']
