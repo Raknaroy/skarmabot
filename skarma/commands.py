@@ -27,6 +27,7 @@ from typing import Optional
 from skarma.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager, catch_error
+from skarma.utils import lang_tools
 from skarma.karma import KarmaManager, UsernamesManager, NoSuchUser, KarmaRangesManager
 from skarma.announcements import ChatsManager
 
@@ -51,7 +52,7 @@ def status(update, context):
 
     number_of_errors = ErrorManager().get_number_of_errors()
     message = f"Status: Running in DEBUG mode ({'Stable' if number_of_errors == 0 else 'Unstable'})\n" \
-              f"Unexpected errors: {number_of_errors}\n" \
+              f"Unexpected errors: {number_of_errors} (/clear_errors)\n" \
               f"Logging status: " + ("logging normally\n" if len(blog.handlers) != 0 else "logging init failed\n") + \
               f"Database connection status: " + ("connected" if DBUtils().is_connected() else "disconnected (error)")
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
@@ -166,6 +167,10 @@ def gen_error(update, context):
         context.bot.send_message(chat_id=chat_id, text='Только администратор может сгенерировать тестовую ошибку')
 
 
+def str_find_penultimate(text: str, pattern: str) -> int:
+    return text.rfind(pattern, 0, text.rfind(pattern))
+
+
 @catch_error
 def level(update, context):
     """Send user information about his karma level"""
@@ -183,16 +188,52 @@ def level(update, context):
     message = f'Ваш уровень кармы: {kr.name} [{kr.min_range}, {kr.max_range}]\n\n'
 
     if kr.enable_plus:
-        message += f'Вы можете прибавлять +{kr.plus_value} едениц(ы/у) кармы\n'
+        message += f'Вы можете прибавлять ' \
+                   f'+{lang_tools.russian_case_nums(kr.plus_value, "еденицу", "еденицы", "едениц")} кармы\n'
     else:
         message += f'Вы не можете прибавлять карму :(\n'
 
     if kr.enable_minus:
-        message += f'Вы можете отнимать -{kr.minus_value} едениц(ы/у) кармы\n'
+        message += f'Вы можете отнимать ' \
+                   f'-{lang_tools.russian_case_nums(kr.minus_value, "еденицу", "еденицы", "едениц")} кармы\n'
     else:
         message += f'Вы не можете отнимать карму :(\n'
 
-    message += f'Вы можете изменять карму {kr.day_max} раз в день'
+    message += f'Вы можете изменять карму {lang_tools.russian_case_nums(int(kr.day_max), "раз", "раза", "раз")}' \
+               f' в день и раз в '
+
+    c = 0
+    seconds = int(kr.timeout.seconds)
+    days = int(kr.timeout.days)
+    if days != 0:
+        weeks = days // 7
+        days_ = days % 7
+
+        if weeks != 0:
+            c += 1
+            message += lang_tools.russian_case_nums(weeks, 'неделю ', 'недели ', 'недель ')
+        if days_ != 0:
+            c += 1
+            message += lang_tools.russian_case_nums(days_, 'дней ', 'дня ', 'дней ')
+    if seconds != 0:
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds_ = (seconds % 60)
+
+        if hours != 0:
+            c += 1
+            message += lang_tools.russian_case_nums(hours, 'час ', 'часа ', 'часов ')
+        if minutes != 0:
+            c += 1
+            message += lang_tools.russian_case_nums(minutes, 'минуту ', 'минуты ', 'минут ')
+        if seconds_ != 0:
+            c += 1
+            message += lang_tools.russian_case_nums(seconds_, 'секунду ', 'секунды ', 'секунд ')
+
+    message = message[:-1]
+    lst_spc_i = str_find_penultimate(message, ' ')
+    if c > 2:  # yes, >, not >=
+        message = message[:lst_spc_i+1] + 'и ' + message[lst_spc_i+1:]
 
     context.bot.send_message(chat_id=chat_id, text=message)
 
@@ -230,3 +271,29 @@ def start(update, context):
     chat_id = update.effective_chat.id
     logging.getLogger('botlog').info(f'User with id #{chat_id} will be added to database after running /start')
     ChatsManager().add_new_chat(chat_id)
+
+
+@catch_error
+def clear_errors(update, context):
+    """Clear all errors in DB"""
+
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+    logging.getLogger('botlog').info(f'Deleting all errors! Asked by user #{user_id} in chat #{chat_id}')
+
+    if user_id in admins:
+        ErrorManager().clear_all_errors()
+        context.bot.send_message(chat_id=chat_id, text='All errors successfully deleted')
+    else:
+        logging.getLogger('botlog').debug('Errors could bot be deleted: access denied. Check admins list')
+        context.bot.send_message(chat_id=chat_id, text='Только администратор может удалить все ошибки')
+
+
+@catch_error
+def chat_id_(update, context):
+    """Print chat id"""
+
+    chat_id = update.effective_chat.id
+
+    logging.getLogger('botlog').info(f'Printing chat id in chat #{chat_id}')
+    context.bot.send_message(chat_id=chat_id, text=f'Current chat id: {chat_id}')

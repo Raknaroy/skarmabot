@@ -1,0 +1,4 @@
+pip
+python-telegram-bot~=12.8
+mysql-connector-python~=8.0.20
+Deprecated~=1.2.5
