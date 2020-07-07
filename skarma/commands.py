@@ -163,9 +163,6 @@ def antitop(update, context):
     context.bot.send_message(chat_id=chat_id, text=message)
 
 
-admins = [253927284]
-
-
 @catch_error
 def gen_error(update, context):
     """Generate sample error for debugging"""
@@ -174,7 +171,7 @@ def gen_error(update, context):
     user_id = update.effective_user.id
     logging.getLogger('botlog').info(f'Generating sample error! Asked by user #{user_id} in chat #{chat_id}')
 
-    if user_id in admins:
+    if user_id in AppInfo().admins:
         ErrorManager().report_error('Test error', f'This sample error was generated for debugging '
                                                   f'by user #{user_id} in chat #{chat_id}')
         context.bot.send_message(chat_id=chat_id, text='Sample error successfully generated')
