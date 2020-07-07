@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0-rc.1] - 2020-07-07
+### Added
+- Stickers support
+- /clean_errors command in DEBUG mode
+- /chat_id command for getting chat if in DEBUG mode
+- Timeouts in /level command
+- Cases in russian translation
+- Donations
+- /license command with license and copyright info
+### Changed
+- Bug fixies
+- Made some optimizations: some configs are now loading once, using binary search on karma levels, statick karma levels check on start
+- Now different login and 'from email' can be used
+- Build is now short hash of last commit
+- Now you can't decrease karma of user, who have just decreased your karma
+- Remove mentions from /top and /antitop commands
+- Move administrators and karma change phrases lists to configs
+
 ## [0.1.1] - 2020-07-06
 ### Changed
 - Fix karma range config
@@ -48,4 +66,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.1.0-beta.3]: https://github.com/sandsbit/skarmabot/compare/v0.1.0-beta.2...v0.1.0-beta.3
 [0.1.0-rc.1]: https://github.com/sandsbit/skarmabot/compare/v0.1.0-beta.3...v0.1.0-rc.1
 [0.1.0]: https://github.com/sandsbit/skarmabot/compare/v0.1.0-rc.1...v0.1.0
-[0.1.1: https://github.com/sandsbit/skarmabot/compare/v0.1.0...v0.1.1
+[0.1.1]: https://github.com/sandsbit/skarmabot/compare/v0.1.0...v0.1.1
+[0.2.0-rc.1]: https://github.com/sandsbit/skarmabot/compare/v0.1.1...v0.2.0-rc.1
