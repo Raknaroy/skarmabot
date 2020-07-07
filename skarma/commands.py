@@ -294,7 +294,7 @@ def clear_errors(update, context):
     user_id = update.effective_user.id
     logging.getLogger('botlog').info(f'Deleting all errors! Asked by user #{user_id} in chat #{chat_id}')
 
-    if user_id in admins:
+    if user_id in AppInfo().admins:
         ErrorManager().clear_all_errors()
         context.bot.send_message(chat_id=chat_id, text='All errors successfully deleted')
     else:
