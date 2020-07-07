@@ -4,10 +4,12 @@ Yet another karma bot for telegram groups.
 ## Access bot
 Bot is accessible on @skarmabot
 ## Download latest version
-You can download SKarma 0.1.1 source [here](https://github.com/sandsbit/skarmabot/releases/tag/v0.1.1)
+You can download SKarma 0.2.0-rc.1 source [here](https://github.com/sandsbit/skarmabot/releases/tag/v0.2.0-rc.1)
 ## Features
 * Karma :)
 * Karma levels, each have own name and rights
+* Stickers support
+* Donations using Telegram Bot Payment API
 * Announcements system
 * Get top of your chat's users
 * Russian language
