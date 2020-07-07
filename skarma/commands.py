@@ -117,8 +117,8 @@ def process_top(bd_resp: List[Tuple[int, int]], smile=':(') -> str:
         try:
             user_name = UsernamesManager().get_username_by_id(user_id)
         except NoSuchUser:
-            user_name = f'Unnamed user ({user_id})'
-        message += f'{user_name}: {karma}\n'
+            user_name = f' Unnamed user ({user_id})'
+        message += f'{user_name[1:]}: {karma}\n'
 
     return message
 
