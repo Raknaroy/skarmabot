@@ -36,7 +36,7 @@ def binary_search(obj, lst: List) -> int:
     pos = int(lst_len / 2)
     if lst[pos] == obj:
         return pos
-    elif lst[pos] < obj:
+    elif obj < lst[pos]:
         return binary_search(obj, lst[0:pos])
     else:
         return pos + 1 + binary_search(obj, lst[pos+1:])
