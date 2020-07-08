@@ -28,7 +28,16 @@ class NotFound(Exception):
 
 
 def binary_search(obj, lst: List) -> int:
-    """Raise NotFound if obj is not in lst"""
+    """
+    Find obj in lst using binary search. lst should be sorted.
+
+    All members of lst should support == (__eq__) operators with the type of obj. Also,
+    '<' must be supported between obj and lst elements.
+
+    Raises NotFound if obj is not in lst.
+    If lst is not sorted or obj occur in lst several time, function
+    behavior is undefined.
+    """
     lst_len = len(lst)
     if lst_len == 0:
         raise NotFound
@@ -36,7 +45,7 @@ def binary_search(obj, lst: List) -> int:
     pos = int(lst_len / 2)
     if lst[pos] == obj:
         return pos
-    elif lst[pos] < obj:
+    elif obj < lst[pos]:
         return binary_search(obj, lst[0:pos])
     else:
         return pos + 1 + binary_search(obj, lst[pos+1:])
