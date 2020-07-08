@@ -35,7 +35,7 @@ class AppInfo(metaclass=SingletonMeta):
 
     blog = logging.getLogger('botlog')
 
-    APP_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/app.conf')
+    APP_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../../config/app.conf')
 
     app_name: str
     app_description: str

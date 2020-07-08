@@ -33,7 +33,7 @@ class DonateInfo(metaclass=SingletonMeta):
 
     blog = logging.getLogger('botlog')
 
-    DONATE_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/donate.conf')
+    DONATE_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../../config/donate.conf')
 
     test_enabled: bool
     test_payload: str

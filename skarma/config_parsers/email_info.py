@@ -33,7 +33,7 @@ class EmailInfo(metaclass=SingletonMeta):
 
     blog = logging.getLogger('botlog')
 
-    EMIAL_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/email.conf')
+    EMIAL_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../../config/email.conf')
 
     smtp_host: str
     smtp_port: int

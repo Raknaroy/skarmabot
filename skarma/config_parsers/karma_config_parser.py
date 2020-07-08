@@ -127,7 +127,7 @@ class KarmaRangesManager(metaclass=SingletonMeta):
 
     blog = logging.getLogger('botlog')
 
-    KARMA_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/karma.conf')
+    KARMA_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../../config/karma.conf')
 
     default_range: KarmaRange
     ranges: List[KarmaRange] = []

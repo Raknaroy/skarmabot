@@ -33,7 +33,7 @@ class DBInfo(metaclass=SingletonMeta):
 
     blog = logging.getLogger('botlog')
 
-    DB_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../config/db.conf')
+    DB_CONFIG_FILE = path.join(path.dirname(path.abspath(__file__)), '../../config/db.conf')
 
     host: str
     port: int
