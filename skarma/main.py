@@ -159,6 +159,9 @@ if __name__ == "__main__":
 
     blog.debug('Running with token: ' + token)
 
+    if DEBUG_MODE:
+        ErrorManager().report_by_email = False
+
     updater = Updater(token=token, use_context=True)
     dispatcher = updater.dispatcher
     blog.info('Created updater and dispatcher')
