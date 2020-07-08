@@ -28,6 +28,7 @@ from threading import Thread
 from enum import Enum
 from typing import List, Dict, Tuple
 from datetime import datetime
+from collections import defaultdict
 from os import path
 
 from telegram import Bot
@@ -158,7 +159,7 @@ def _parse_message(msg: str) -> ParserResult:
 last_actions: Dict[Tuple[int, int], Tuple[int, int, datetime]] = {}
 
 # key - tuple of chat and user IDs. value - id of user who decreased karma and change timestamp
-last_karma_minus: Dict[Tuple[int, int], List[Tuple[int, datetime]]] = {}
+last_karma_minus: Dict[Tuple[int, int], List[Tuple[int, datetime]]] = defaultdict(list)
 
 
 @catch_error
@@ -224,10 +225,6 @@ def message_handler(update, context):
             else:
                 km.decrease_user_karma(chat_id, user_id, change_value)
                 last_actions[(chat_id, from_user_id)] = (user_id, -change_value, datetime.utcnow())
-
-                if (chat_id, user_id) not in last_karma_minus:
-                    last_karma_minus[(chat_id, user_id)] = []
-
                 last_karma_minus[(chat_id, user_id)].append((from_user_id, datetime.utcnow()))
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text=f'-{change_value} к карме {user_name}\n'
