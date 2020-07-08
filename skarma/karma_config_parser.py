@@ -115,6 +115,10 @@ class KarmaRange:
 
     def __lt__(self, other: int) -> bool:
         """Check that int is less than karma range min"""
+        return other > self.min_range
+
+    def __gt__(self, other: int) -> bool:
+        """Check that int is less than karma range min"""
         return other < self.min_range
 
     def __eq__(self, other: int) -> bool:
