@@ -76,7 +76,7 @@ def support(update, context):  # TODO: read links from config file
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text='Вы можете задать свой вопрос или преложить идею для бота по адрессу '
                                   'https://github.com/sandsbit/skarmabot/issues (толькпо по англ.) или '
-                                  'же по написв на почту <nikitaserba@icloud.com>.')
+                                  'с помощью специального бота: @skarma_supportbot')
 
 
 @catch_error
