@@ -74,8 +74,8 @@ def support(update, context):  # TODO: read links from config file
     logging.getLogger('botlog').info('Printing support info to chat with id ' + str(update.effective_chat.id))
 
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text='Вы можете задать свой вопрос или преложить идею для бота по адрессу '
-                                  'https://github.com/sandsbit/skarmabot/issues (толькпо по англ.) или '
+                             text='Вы можете задать свой вопрос или предложить идею для бота по адресу '
+                                  'https://github.com/sandsbit/skarmabot/issues (только по англ.) или '
                                   'с помощью специального бота: @skarma_supportbot')
 
 
@@ -85,7 +85,7 @@ def bug_report(update, context):
     logging.getLogger('botlog').info('Printing bug report info to chat with id ' + str(update.effective_chat.id))
 
     context.bot.send_message(chat_id=update.effective_chat.id,
-                             text='Сообщить об ошибке можно по адрессу https://github.com/sandsbit/skarmabot/issues '
+                             text='Сообщить об ошибке можно по адресу https://github.com/sandsbit/skarmabot/issues '
                                   '(толькл по англ.). Используйте эту форму только для сообщения об технических '
                                   'ошибках. Если вас не устраивает что вам/кому-то подняли/опустили карму без повода, '
                                   'обратитесь к администратору группы. Если вы нашли узявимость в боте, ознакомтесь с '
