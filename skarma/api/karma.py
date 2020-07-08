@@ -31,7 +31,7 @@ from mysql.connector.errors import DatabaseError
 
 from skarma.utils.singleton import SingletonMeta
 from skarma.utils.db import DBUtils
-from skarma.karma_config_parser import KarmaRangesManager
+from skarma.config_parsers.karma_config_parser import KarmaRangesManager
 
 
 class NoSuchUser(Exception):

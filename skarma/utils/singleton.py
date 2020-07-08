@@ -26,13 +26,6 @@ from threading import Lock
 class SingletonMeta(type):
     """
     Thread-safe meta class for creating singleton classes
-
-    Based on https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python.
-
-    Copyright (C) 2011 Adam Forsyth (https://stackoverflow.com/users/500584/agf) (original)
-    Copyright (C) 2020 Nikita Serba (thread-safe version)
-    Original class is licensed under terms of CC BY-SA 4.0.
-    For more information see Stack Overflow Public Network Terms of Service, section 6.
     """
     _instances = {}
     _instances_lock = Lock()

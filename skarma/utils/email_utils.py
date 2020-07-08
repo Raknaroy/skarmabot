@@ -26,7 +26,7 @@ from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from skarma.email_info import EmailInfo
+from skarma.config_parsers.email_info import EmailInfo
 
 
 def send_email(to: str, subject: str, content: str):

@@ -30,7 +30,7 @@ import mysql.connector
 from mysql.connector import MySQLConnection
 from mysql.connector.errors import DatabaseError
 
-from skarma.db_info import DBInfo
+from skarma.config_parsers.db_info import DBInfo
 from skarma.utils.singleton import SingletonMeta
 
 

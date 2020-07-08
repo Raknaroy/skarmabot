@@ -25,11 +25,11 @@ import logging
 from typing import Optional, List, Tuple
 from os import path
 
-from skarma.app_info import AppInfo
+from skarma.config_parsers.app_info import AppInfo
 from skarma.utils.db import DBUtils
 from skarma.utils.errorm import ErrorManager, catch_error
 from skarma.utils import lang_tools
-from skarma.karma import KarmaManager, UsernamesManager, NoSuchUser, KarmaRangesManager
+from skarma.api.karma import KarmaManager, UsernamesManager, NoSuchUser, KarmaRangesManager
 from skarma.announcements import ChatsManager
 
 LICENSE_FILE = "copyinfo.txt"

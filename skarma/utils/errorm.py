@@ -25,14 +25,14 @@ import logging
 import pprint
 
 from functools import wraps
-from typing import List, Tuple, Type
+from typing import List, Tuple
 
 from mysql.connector.errors import DatabaseError
 
 from skarma.utils.singleton import SingletonMeta
 from skarma.utils.db import DBUtils
 from skarma.utils import email_utils
-from skarma.email_info import EmailInfo
+from skarma.config_parsers.email_info import EmailInfo
 
 
 class ErrorManager(metaclass=SingletonMeta):

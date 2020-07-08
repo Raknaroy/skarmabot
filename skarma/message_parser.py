@@ -33,7 +33,7 @@ from os import path
 from telegram import Bot
 from telegram.error import TimedOut, RetryAfter, Unauthorized
 
-from skarma.karma import KarmaManager, UsernamesManager, StatsManager, MessagesManager
+from skarma.api.karma import KarmaManager, UsernamesManager, StatsManager, MessagesManager
 from skarma.utils.errorm import ErrorManager, catch_error
 from skarma.utils.db import DBUtils
 from skarma.announcements import ChatsManager, AnnouncementsManager

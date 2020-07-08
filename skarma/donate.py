@@ -26,7 +26,7 @@ from telegram import LabeledPrice
 from telegram.ext import ConversationHandler
 
 from skarma.utils.errorm import catch_error
-from skarma.donate_info import DonateInfo
+from skarma.config_parsers.donate_info import DonateInfo
 
 AMOUNT = range(1)
 

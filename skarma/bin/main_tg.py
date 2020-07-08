@@ -31,8 +31,8 @@ from os import path
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
 from skarma import commands, message_parser, donate
-from skarma.app_info import AppInfo
-from skarma.karma_config_parser import KarmaRangesManager
+from skarma.config_parsers.app_info import AppInfo
+from skarma.config_parsers.karma_config_parser import KarmaRangesManager
 from skarma.utils.errorm import ErrorManager
 
 LOGGING_DIR: str
